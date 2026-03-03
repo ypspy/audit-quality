@@ -1,0 +1,27 @@
+/* TAG */
+H3 {
+    margin-top: 40px;
+}
+
+img {
+    outline: 1px solid rgba(7, 7, 7, 0.2);
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+table {
+    font-size: 0.9em;
+}
+
+/* CLASS */
+.admonition.note{
+    font-size: 0.95em;
+}
+
+.hljs-string{
+    color: black
+}
+
+.md-header{
+    background-color: black;
+}

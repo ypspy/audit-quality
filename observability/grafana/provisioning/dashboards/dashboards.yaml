@@ -1,0 +1,14 @@
+# Phase 1-4: Grafana 대시보드 자동 로드
+apiVersion: 1
+
+providers:
+  - name: "Audit Quality Stack"
+    orgId: 1
+    folder: "Audit Quality"
+    folderUid: audit-quality
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/json

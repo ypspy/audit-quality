@@ -1,0 +1,102 @@
+
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Aug 13 15:19:08 2020
+
+감사보고서 DSD를 HTML로 변환하는 코드. XML에 포함된 정보를 분류 정보로 사용함.
+
+준비) 1. 한/영 전환을 한글상태 '가'로 변경 2. 크롬 저장을 목적지로 1회 수
+
+@author: user
+
+https://wotres.tistory.com/entry/python-%EC%97%90%EC%84%9C-SyntaxError-unicode-error-unicodeescape-codec-cant-decode-bytes-in-position-2-3-truncated-UXXXXXXXX-escape-%EC%97%90%EB%9F%AC-%ED%95%B4%EA%B2%B0%EB%B2%95
+
+"""
+import os
+import glob
+import time
+import pyautogui
+
+
+def mouse_click(x, y):
+    pyautogui.moveTo(x, y)
+    pyautogui.click()
+    time.sleep(0.5)
+
+
+# 2. 타겟 폴더에 있는 필요 문서 경로 리스트업
+
+folder_path = './documents/'  # Replace with your folder path
+
+# Get all subdirectories within the folder
+subdirectories = glob.glob(folder_path + '/**/', recursive=True)
+
+# Create a list to store the results
+results = []
+
+# Iterate over subdirectories
+for subdirectory in subdirectories:
+    subdirectory_result = {}
+
+    # List all files in the subdirectory
+    files = glob.glob(subdirectory + '*.dsd')
+    
+    # Get the size of each file and store them in a dictionary
+    file_sizes = {}
+    for file in files:
+        file_sizes[file] = os.path.getsize(file)
+
+    # Sort the files by size in descending order
+    sorted_files = sorted(file_sizes.items(), key=lambda x: x[1], reverse=True)
+
+    # Store the biggest file in the subdirectory
+    if sorted_files:
+        biggest_file, size = sorted_files[0]
+        subdirectory_result['biggest_file'] = biggest_file
+        results.append(biggest_file)
+
+i = 1
+for path in results:
+
+    os.startfile(path)
+
+    time.sleep(4)
+    pyautogui.hotkey('alt', 'n')
+    pyautogui.press('enter', presses=1)
+    
+    pyautogui.press('esc', presses=3)
+
+    time.sleep(2)
+    pyautogui.hotkey('ctrl', 'w')
+    time.sleep(2)
+    pyautogui.hotkey('ctrl', 't')
+    
+    time.sleep(2)
+    pathDoc = "file:///C:/Users/yoont/AppData/Local/Temp/~$DartHTML-DOC.htm"
+    pyautogui.write(pathDoc)
+    
+    time.sleep(2)
+    pyautogui.press('enter', presses=1)
+    
+    time.sleep(2)
+    pyautogui.hotkey('ctrl', 's')
+    
+    time.sleep(3)
+    pyautogui.write(subdirectories[i].split("\\")[1])
+    i += 1
+    
+    time.sleep(2)
+    pyautogui.press('enter', presses=1)
+
+    time.sleep(2)
+    pyautogui.hotkey('ctrl', 'f4')
+    
+    time.sleep(1)
+    pyautogui.hotkey('ctrl', 'f4')
+    
+    time.sleep(1)
+    pyautogui.hotkey('alt', 'tab')
+    
+    time.sleep(1)
+    pyautogui.hotkey('ctrl', 'f4')
+       

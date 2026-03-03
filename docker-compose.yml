@@ -1,0 +1,493 @@
+# Phase 1-1: Docker Compose 전체 서비스 통합
+# Phase 1-2: Traefik v3 리버스 프록시 (HTTPS, 라우팅, Rate Limit, IP Allowlist)
+# Phase 1-3: Keycloak 24 SSO (Realm yss, ForwardAuth)
+# Phase 1-4: OpenTelemetry + Grafana Stack (로그·메트릭·트레이스)
+# 실행: docker compose up -d
+# 확인: docker compose ps (헬스체크 통과 시 healthy)
+# 접속: https://localhost/api/portal, /api/eval, ... (대시보드: http://localhost:8080, Keycloak: https://localhost/auth, Grafana: http://localhost:3000)
+
+services:
+  traefik:
+    image: traefik:v3.4
+    container_name: audit-quality-traefik
+    restart: unless-stopped
+    command:
+      - "--configFile=/etc/traefik/traefik.yml"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=app"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./traefik/dynamic:/etc/traefik/dynamic:ro
+      - ./traefik/certs:/etc/traefik/certs:ro
+    networks:
+      - app
+
+  keycloak_db:
+    image: postgres:16-alpine
+    container_name: audit-quality-keycloak-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-keycloak}
+    volumes:
+      - keycloak_data:/var/lib/postgresql/data
+    networks:
+      - app
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.5
+    container_name: audit-quality-keycloak
+    restart: unless-stopped
+    command:
+      - "start"
+      - "--import-realm"
+      - "--http-relative-path=/auth"
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak_db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-keycloak}
+      KC_HOSTNAME: http://localhost/auth
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_RELATIVE_PATH: /auth
+      KC_PROXY: edge
+    volumes:
+      - ./keycloak/realm/yss-realm.json:/opt/keycloak/data/import/yss-realm.json:ro
+    depends_on:
+      keycloak_db:
+        condition: service_healthy
+    networks:
+      - app
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.r-keycloak.rule=PathPrefix(`/auth`)"
+      - "traefik.http.routers.r-keycloak.priority=10"
+      - "traefik.http.routers.r-keycloak.entrypoints=web,websecure"
+      - "traefik.http.routers.r-keycloak.service=s-keycloak"
+      - "traefik.http.services.s-keycloak.loadbalancer.server.port=8080"
+
+  # ---------- Phase 2-1: Next.js 15 통합 UI 셸 ----------
+  # 주의: http://localhost 로 접속할 경우 반드시 WEB_AUTH_URL=http://localhost, KEYCLOAK_ISSUER=http://localhost/auth/realms/yss 로 통일. https면 둘 다 https.
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: audit-quality-web
+    restart: unless-stopped
+    ports:
+      - "3020:3000"
+    environment:
+      NODE_ENV: production
+      AUTH_SECRET: ${WEB_AUTH_SECRET:-change-me-in-production}
+      AUTH_KEYCLOAK_ID: next-app
+      AUTH_KEYCLOAK_SECRET: ${WEB_AUTH_KEYCLOAK_SECRET:-}
+      # 브라우저-facing 외부 issuer URL (discovery 문서의 issuer 값과 일치해야 함)
+      AUTH_KEYCLOAK_ISSUER: ${KEYCLOAK_ISSUER:-http://localhost/auth/realms/yss}
+      # 컨테이너 내부에서 OIDC server-side fetch 시 교체할 내부 URL (customFetch로 issuer URL을 이 URL로 교체)
+      AUTH_KEYCLOAK_INTERNAL_URL: ${WEB_AUTH_KEYCLOAK_INTERNAL_URL:-http://keycloak:8080/auth/realms/yss}
+      AUTH_URL: ${WEB_AUTH_URL:-http://localhost}
+      # qualityEval API 프록시용 (컨테이너 내부 통신)
+      QUALITY_EVAL_INTERNAL_URL: http://qualityeval:3000
+      # timesheet API 프록시용 (Phase 2-4)
+      TIMESHEET_INTERNAL_URL: http://timesheet:3000
+      # dart-for-auditor API 프록시용 (Phase 2-5)
+      DART_INTERNAL_URL: http://dart-for-auditor:4000
+      # local-inquiry-site API 프록시용 (Phase 2-6)
+      CLIENT_INTERNAL_URL: http://local-inquiry-site:8000
+    depends_on:
+      - keycloak
+    networks:
+      - app
+    # 루트(/) 라우팅은 traefik/dynamic/middlewares.yml 파일 프로바이더에서 처리 (r-web-root → web:3000)
+
+  forward-auth:
+    build:
+      context: ./forward-auth
+      dockerfile: Dockerfile
+    container_name: audit-quality-forward-auth
+    restart: unless-stopped
+    environment:
+      PORT: 3005
+      # 브라우저가 로그인한 Issuer (토큰 검증용)
+      KEYCLOAK_ISSUER: ${KEYCLOAK_ISSUER:-http://localhost/auth/realms/yss}
+      # JWKS는 컨테이너 내부 주소로 조회
+      KEYCLOAK_JWKS_URI: http://keycloak:8080/auth/realms/yss/protocol/openid-connect/certs
+    depends_on:
+      - keycloak
+    networks:
+      - app
+
+  mongo:
+    image: mongo:7
+    container_name: audit-quality-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  qualityportal:
+    build:
+      context: ./qualityPortal
+      dockerfile: Dockerfile
+    container_name: audit-quality-portal
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      MONGODB_URI: mongodb://mongo:27017/qualityportal
+      KEYCLOAK_JWKS_URI: http://keycloak:8080/auth/realms/yss/protocol/openid-connect/certs
+      KEYCLOAK_ISSUER: ${KEYCLOAK_ISSUER:-http://localhost/auth/realms/yss}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_SERVICE_NAME: qualityportal
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - app
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.r-portal.rule=PathPrefix(`/api/portal`)"
+      - "traefik.http.routers.r-portal.priority=10"
+      - "traefik.http.routers.r-portal.entrypoints=web,websecure"
+      - "traefik.http.routers.r-portal.service=s-portal"
+      - "traefik.http.routers.r-portal.middlewares=forwardauth-auth@file,strip-portal,ratelimit-global@file"
+      - "traefik.http.services.s-portal.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.strip-portal.stripprefix.prefixes=/api/portal"
+
+  qualityeval:
+    build:
+      context: ./qualityEval
+      dockerfile: Dockerfile
+    container_name: audit-quality-eval
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      MONGODB_URI: mongodb://mongo:27017/qualityeval
+      SECRET: ${QUALITYEVAL_SECRET:-change-me-in-production}
+      KEYCLOAK_JWKS_URI: http://keycloak:8080/auth/realms/yss/protocol/openid-connect/certs
+      KEYCLOAK_ISSUER: ${KEYCLOAK_ISSUER:-http://localhost/auth/realms/yss}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_SERVICE_NAME: qualityeval
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - app
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.r-eval.rule=PathPrefix(`/api/eval`)"
+      - "traefik.http.routers.r-eval.priority=10"
+      - "traefik.http.routers.r-eval.entrypoints=web,websecure"
+      - "traefik.http.routers.r-eval.service=s-eval"
+      - "traefik.http.routers.r-eval.middlewares=forwardauth-auth@file,strip-eval,ratelimit-global@file"
+      - "traefik.http.services.s-eval.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.strip-eval.stripprefix.prefixes=/api/eval"
+
+  timesheet:
+    build:
+      context: ./timesheet
+      dockerfile: Dockerfile
+    container_name: audit-quality-timesheet
+    restart: unless-stopped
+    ports:
+      - "3003:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      MONGODB_URI: mongodb://mongo:27017/timesheet
+      SESSION_SECRET: ${TIMESHEET_SESSION_SECRET:-change-me-in-production}
+      PASSWORD: ${TIMESHEET_PASSWORD:-admin}
+      KEYCLOAK_JWKS_URI: http://keycloak:8080/auth/realms/yss/protocol/openid-connect/certs
+      KEYCLOAK_ISSUER: ${KEYCLOAK_ISSUER:-http://localhost/auth/realms/yss}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_SERVICE_NAME: timesheet
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - app
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.r-timesheet.rule=PathPrefix(`/api/timesheet`)"
+      - "traefik.http.routers.r-timesheet.priority=10"
+      - "traefik.http.routers.r-timesheet.entrypoints=web,websecure"
+      - "traefik.http.routers.r-timesheet.service=s-timesheet"
+      - "traefik.http.routers.r-timesheet.middlewares=forwardauth-auth@file,strip-timesheet,ratelimit-global@file"
+      - "traefik.http.services.s-timesheet.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.strip-timesheet.stripprefix.prefixes=/api/timesheet"
+
+  dart-for-auditor:
+    build:
+      context: ./dart-for-auditor
+      dockerfile: Dockerfile
+    container_name: audit-quality-dart
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      MONGODB_URI: mongodb://mongo:27017/dart_auditor
+      DART_API_KEY: ${DART_API_KEY:-optional-for-docker}
+      KEYCLOAK_JWKS_URI: http://keycloak:8080/auth/realms/yss/protocol/openid-connect/certs
+      KEYCLOAK_ISSUER: ${KEYCLOAK_ISSUER:-http://localhost/auth/realms/yss}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_SERVICE_NAME: dart-for-auditor
+      NODE_OPTIONS: --require ./instrumentation.js
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - app
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.r-dart.rule=PathPrefix(`/api/dart`)"
+      - "traefik.http.routers.r-dart.priority=10"
+      - "traefik.http.routers.r-dart.entrypoints=web,websecure"
+      - "traefik.http.routers.r-dart.service=s-dart"
+      - "traefik.http.routers.r-dart.middlewares=forwardauth-auth@file,strip-dart,ratelimit-global@file"
+      - "traefik.http.services.s-dart.loadbalancer.server.port=4000"
+      - "traefik.http.middlewares.strip-dart.stripprefix.prefixes=/api/dart"
+
+  # ---------- Phase 2-8: 배치 파이프라인 컨테이너 ----------
+  # DART 공시 메타데이터 증분 수집기 (daily/weekly/monthly)
+  dart-collector:
+    build:
+      context: ./dart-for-auditor
+      dockerfile: Dockerfile
+    container_name: audit-quality-dart-collector
+    restart: "no"
+    profiles:
+      - batch
+    environment:
+      NODE_ENV: production
+      MONGODB_URI: mongodb://mongo:27017/dart_auditor
+      DART_API_KEY: ${DART_API_KEY:-optional-for-docker}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_SERVICE_NAME: dart-collector
+      NODE_OPTIONS: --require ./instrumentation.js
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - app
+    # 기본은 idle 상태로 유지하고, 실행 시에는
+    #   docker compose run --rm dart-collector npm run collect:daily
+    # 와 같이 명령을 지정해 사용한다.
+    command: ["tail", "-f", "/dev/null"]
+
+  local-inquiry-site:
+    build:
+      context: ./local-inquiry-site
+      dockerfile: Dockerfile
+    container_name: audit-quality-inquiry
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      SECRET_KEY: ${LOCAL_INQUIRY_SECRET_KEY:-change-me-in-production}
+      ENCRYPTION_KEY: ${LOCAL_INQUIRY_ENCRYPTION_KEY:-}
+      # Target: shared PostgreSQL instance (ADR-004).
+      # Example (same Postgres as keycloak_db, separate DB):
+      #   DATABASE_URL=postgresql+psycopg2://keycloak:${KEYCLOAK_DB_PASSWORD:-keycloak}@keycloak_db:5432/local_inquiry
+      # For development-only SQLite fallback, override this per environment.
+      DATABASE_URL: ${LOCAL_INQUIRY_DATABASE_URL:-sqlite:////app/instance/database.db}
+      KEYCLOAK_JWKS_URI: http://keycloak:8080/auth/realms/yss/protocol/openid-connect/certs
+      KEYCLOAK_ISSUER: ${KEYCLOAK_ISSUER:-http://localhost/auth/realms/yss}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_SERVICE_NAME: local-inquiry-site
+    volumes:
+      - inquiry_data:/app/instance
+    networks:
+      - app
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.r-client.rule=PathPrefix(`/api/client`)"
+      - "traefik.http.routers.r-client.priority=10"
+      - "traefik.http.routers.r-client.entrypoints=web,websecure"
+      - "traefik.http.routers.r-client.service=s-client"
+      - "traefik.http.routers.r-client.middlewares=forwardauth-auth@file,strip-client,ratelimit-global@file,ipallowlist-client@file"
+      - "traefik.http.services.s-client.loadbalancer.server.port=8000"
+      - "traefik.http.middlewares.strip-client.stripprefix.prefixes=/api/client"
+
+  # Phase 3-1: /policy, /updates는 Next.js MDX로 서빙 (policy-docs/updates-docs 컨테이너 미사용)
+
+  # 금융·회계 규제 업데이트 크롤러 (quality-updates-crawler)
+  regulation-crawler:
+    build:
+      context: ./quality-updates-crawler
+      dockerfile: Dockerfile
+    container_name: audit-quality-regulation-crawler
+    restart: "no"
+    profiles:
+      - batch
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_SERVICE_NAME: regulation-crawler
+    networks:
+      - app
+    volumes:
+      # crawler의 outputs/ → quality-updates MkDocs 소스 디렉터리와 직접 연결
+      - ./quality-updates/docs/quality-updates:/app/outputs
+    # 예시:
+    #   docker compose run --rm regulation-crawler \
+    #     python unified_crawler.py --start 2025-10-01 --end 2025-12-31
+    command: ["tail", "-f", "/dev/null"]
+
+  # 감사보고일 추출 배치 작업 (disclosureAnalysis)
+  disclosure-analysis:
+    build:
+      context: ./disclosureAnalysis
+      dockerfile: Dockerfile
+    container_name: audit-quality-disclosure-analysis
+    restart: "no"
+    profiles:
+      - batch
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+      OTEL_SERVICE_NAME: disclosure-analysis
+      DISCLOSURE_INPUT_DIR: /data
+      DISCLOSURE_OUTPUT_DIR: /outputs
+    networks:
+      - app
+    volumes:
+      - disclosure_input:/data
+      - disclosure_output:/outputs
+    # 예시:
+    #   docker compose run --rm disclosure-analysis python reportDate.py
+    command: ["tail", "-f", "/dev/null"]
+
+  # ---------- Phase 1-4: OpenTelemetry + Grafana Stack ----------
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.109.0
+    container_name: audit-quality-otel-collector
+    restart: unless-stopped
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./observability/otel-collector-config.yaml:/etc/otelcol/config.yaml:ro
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "8889:8889"
+    networks:
+      - app
+    depends_on:
+      - loki
+      - tempo
+
+  prometheus:
+    image: prom/prometheus:v2.53.1
+    container_name: audit-quality-prometheus
+    restart: unless-stopped
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-lifecycle"
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - app
+
+  loki:
+    image: grafana/loki:3.0.0
+    container_name: audit-quality-loki
+    restart: unless-stopped
+    command: -config.file=/etc/loki/config.yaml
+    volumes:
+      - ./observability/loki-config.yaml:/etc/loki/config.yaml:ro
+      - loki_data:/loki
+    ports:
+      - "3100:3100"
+    networks:
+      - app
+
+  tempo:
+    image: grafana/tempo:2.3.1
+    container_name: audit-quality-tempo
+    restart: unless-stopped
+    command: ["-config.file=/etc/tempo/config.yaml"]
+    volumes:
+      - ./observability/tempo-config.yaml:/etc/tempo/config.yaml:ro
+      - tempo_data:/var/tempo
+    ports:
+      - "3200:3200"
+    networks:
+      - app
+
+  grafana:
+    image: grafana/grafana:11.3.0
+    container_name: audit-quality-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_SERVER_ROOT_URL: http://localhost:3000
+      GF_INSTALL_PLUGINS: ""
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - app
+    depends_on:
+      - prometheus
+      - loki
+      - tempo
+
+volumes:
+  mongo_data:
+  keycloak_data:
+  inquiry_data:
+  prometheus_data:
+  loki_data:
+  tempo_data:
+  grafana_data:
+  disclosure_input:
+  disclosure_output:
+
+networks:
+  app:
+    driver: bridge

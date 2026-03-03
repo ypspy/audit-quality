@@ -1,0 +1,153 @@
+# Phase 1-5: CI — PR 시 lint + test
+# 참고: docs/deploy.md
+
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  node-timesheet:
+    name: Node (timesheet)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: timesheet
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: timesheet/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Test
+        run: npm test
+
+  node-dart-for-auditor:
+    name: Node (dart-for-auditor)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dart-for-auditor
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: dart-for-auditor/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Unit tests
+        run: npm run test:unit:jest
+        env:
+          NODE_ENV: test
+
+  node-verify-install:
+    name: Node (portal, eval, forward-auth)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - dir: qualityPortal
+            cmd: npm ci
+          - dir: qualityEval
+            cmd: npm ci
+          - dir: forward-auth
+            cmd: npm install
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install dependencies (${{ matrix.dir }})
+        run: ${{ matrix.cmd }}
+        working-directory: ${{ matrix.dir }}
+
+  python-inquiry:
+    name: Python (local-inquiry-site)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: local-inquiry-site
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Tests
+        run: python -m unittest discover -s tests -p "test_*.py" -v
+        env:
+          DATABASE_URL: "sqlite:///:memory:"
+
+  docker-build:
+    name: Docker build (smoke)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build forward-auth
+        uses: docker/build-push-action@v6
+        with:
+          context: ./forward-auth
+          push: false
+          tags: forward-auth:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Build qualityPortal
+        uses: docker/build-push-action@v6
+        with:
+          context: ./qualityPortal
+          push: false
+          tags: qualityportal:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Build qualityEval
+        uses: docker/build-push-action@v6
+        with:
+          context: ./qualityEval
+          push: false
+          tags: qualityeval:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Build timesheet
+        uses: docker/build-push-action@v6
+        with:
+          context: ./timesheet
+          push: false
+          tags: timesheet:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Build dart-for-auditor
+        uses: docker/build-push-action@v6
+        with:
+          context: ./dart-for-auditor
+          push: false
+          tags: dart-for-auditor:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Build local-inquiry-site
+        uses: docker/build-push-action@v6
+        with:
+          context: ./local-inquiry-site
+          push: false
+          tags: local-inquiry-site:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Build web (Next.js + MDX /policy, /updates)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/web/Dockerfile
+          push: false
+          tags: web:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

@@ -1,0 +1,143 @@
+# Traefik 동적 설정: 서비스 라우터 (파일 프로바이더)
+# Docker provider가 동작하지 않을 때를 대비한 명시적 라우팅 정의
+# Docker 라벨과 중복 등록되어도 Traefik이 각각 별도 라우터로 처리함
+
+http:
+  routers:
+    # Keycloak SSO (/auth → keycloak:8080)
+    r-keycloak-file:
+      rule: "PathPrefix(`/auth`)"
+      priority: 10
+      entryPoints:
+        - web
+        - websecure
+      service: s-keycloak-file
+
+    # qualityPortal (/api/portal → qualityportal:3000, ForwardAuth 적용)
+    r-portal-file:
+      rule: "PathPrefix(`/api/portal`)"
+      priority: 10
+      entryPoints:
+        - web
+        - websecure
+      service: s-portal-file
+      middlewares:
+        - forwardauth-auth
+        - strip-portal-file
+        - ratelimit-global
+
+    # qualityEval (/api/eval → qualityeval:3000, ForwardAuth 적용)
+    r-eval-file:
+      rule: "PathPrefix(`/api/eval`)"
+      priority: 10
+      entryPoints:
+        - web
+        - websecure
+      service: s-eval-file
+      middlewares:
+        - forwardauth-auth
+        - strip-eval-file
+        - ratelimit-global
+
+    # timesheet (/api/timesheet → timesheet:3000, ForwardAuth 적용)
+    r-timesheet-file:
+      rule: "PathPrefix(`/api/timesheet`)"
+      priority: 10
+      entryPoints:
+        - web
+        - websecure
+      service: s-timesheet-file
+      middlewares:
+        - forwardauth-auth
+        - strip-timesheet-file
+        - ratelimit-global
+
+    # dart-for-auditor (/api/dart → dart-for-auditor:4000, ForwardAuth 적용)
+    r-dart-file:
+      rule: "PathPrefix(`/api/dart`)"
+      priority: 10
+      entryPoints:
+        - web
+        - websecure
+      service: s-dart-file
+      middlewares:
+        - forwardauth-auth
+        - strip-dart-file
+        - ratelimit-global
+
+    # local-inquiry-site (/api/client → local-inquiry-site:8000, ForwardAuth + IP Allowlist 적용)
+    r-client-file:
+      rule: "PathPrefix(`/api/client`)"
+      priority: 10
+      entryPoints:
+        - web
+        - websecure
+      service: s-client-file
+      middlewares:
+        - forwardauth-auth
+        - strip-client-file
+        - ratelimit-global
+        - ipallowlist-client
+
+  services:
+    s-keycloak-file:
+      loadBalancer:
+        servers:
+          - url: "http://keycloak:8080"
+        passHostHeader: true
+
+    s-portal-file:
+      loadBalancer:
+        servers:
+          - url: "http://qualityportal:3000"
+        passHostHeader: true
+
+    s-eval-file:
+      loadBalancer:
+        servers:
+          - url: "http://qualityeval:3000"
+        passHostHeader: true
+
+    s-timesheet-file:
+      loadBalancer:
+        servers:
+          - url: "http://timesheet:3000"
+        passHostHeader: true
+
+    s-dart-file:
+      loadBalancer:
+        servers:
+          - url: "http://dart-for-auditor:4000"
+        passHostHeader: true
+
+    s-client-file:
+      loadBalancer:
+        servers:
+          - url: "http://local-inquiry-site:8000"
+        passHostHeader: true
+
+  middlewares:
+    strip-portal-file:
+      stripPrefix:
+        prefixes:
+          - "/api/portal"
+
+    strip-eval-file:
+      stripPrefix:
+        prefixes:
+          - "/api/eval"
+
+    strip-timesheet-file:
+      stripPrefix:
+        prefixes:
+          - "/api/timesheet"
+
+    strip-dart-file:
+      stripPrefix:
+        prefixes:
+          - "/api/dart"
+
+    strip-client-file:
+      stripPrefix:
+        prefixes:
+          - "/api/client"

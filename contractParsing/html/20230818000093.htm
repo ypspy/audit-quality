@@ -1,0 +1,433 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE></TITLE>
+<META http-equiv="X-UA-Compatible" content="IE=edge">
+<META http-equiv="X-UA-TextLayoutMetrics" content="gdi">
+<META http-equiv="Content-Type" content="text/html; charset=utf-8">
+<STYLE>
+ 
+  BODY			{margin-left:20px; width:600px; font-size:12pt; font-family:DartNBSP, "바탕", Batang; word-break:break-all;}
+  TABLE			{table-layout:fixed; font-size:11pt; font-family:DartNBSP, "굴림", Gulim; border-collapse:collapse; border-style:solid; border-color:black; color:#000000; margin-bottom:6px;}
+  TABLE.nb 		{border-style:none;}
+  THEAD > TR > TD{font-size:11pt; line-height:1.6em; font-family:DartNBSP, "굴림", Gulim; background-color:#dcdcdc; border-color:gray; padding:4px 4px 2px 4px;}
+  TH					{font-size:11pt; line-height:1.6em; font-family:DartNBSP, "굴림", Gulim; font-weight:normal; background-color:#dcdcdc; border-color:gray; padding:4px 4px 2px 4px;}
+  TD					{font-size:11pt; line-height:1.6em; font-family:DartNBSP, "굴림", Gulim; border-color:gray; padding:4px 4px 2px 4px;}
+  P					{font-size:12pt; line-height:1.6em; font-family:DartNBSP, "바탕", Batang; color:#000000; margin:0px;}  
+  BODY > P	{font-size:12pt; line-height:1.6em; font-family:DartNBSP, "바탕", Batang; text-align:justify; color:#000000; margin:0px;}
+  TH > P			{font-size:11pt; line-height:1.6em; font-family:DartNBSP, "굴림", Gulim;}
+  TD > P			{font-size:11pt; line-height:1.6em; font-family:DartNBSP, "굴림", Gulim;}
+  P.table-group	{font-size:11pt; font-family:DartNBSP, "굴림", Gulim; text-align:center;}
+  P.table-group-xbrl	{font-size:11pt; font-family:DartNBSP, "굴림", Gulim; text-align:left;}
+  P.img-caption	{font-size:12pt; font-family:DartNBSP, "굴림", Gulim; text-align:center; color:#324a58;}
+  P.part {font-size:20pt; line-height:1.6em; font-family:DartNBSP, "바탕", Batang; text-align:center; color:#0000ff; font-weight:bold; white-space:nowrap;}
+  P.section-1	{font-size:18pt; line-height:1.6em; font-family:DartNBSP, "바탕", Batang; text-align:center; color:#0000ff; font-weight:bold; white-space:nowrap;}
+  P.section-2	{font-size:16pt; line-height:1.6em; font-family:DartNBSP, "바탕", Batang; text-align:left; color:#0000ff; font-weight:bold; white-space:nowrap;}
+  P.section-3	{font-size:14pt; line-height:1.6em; font-family:DartNBSP, "바탕", Batang; text-align:left; color:#0000ff;}
+  P.section-4	{font-size:14pt; line-height:1.6em; font-family:DartNBSP, "바탕", Batang; text-align:left; color:#0000ff;}
+  P.section-5	{font-size:12pt; line-height:1.6em; font-family:DartNBSP, "바탕", Batang; text-align:left; color:#0000ff;}
+  P.section-6	{font-size:12pt; line-height:1.6em; font-family:DartNBSP, "바탕", Batang; text-align:left; color:#0000ff;}
+  P.cover			{font-size:28pt; line-height:1.6em; font-family:DartNBSP, "바탕", Batang; text-align:center; color:#0000ff; font-weight:bold;}
+  P.cover-title	{font-size:28pt; line-height:1.6em; font-family:DartNBSP, "바탕", Batang; text-align:center; color:#0000ff; font-weight:bold; white-space:nowrap;}
+  P.correction	{font-size:28pt; line-height:1.6em; font-family:DartNBSP, "바탕", Batang; text-align:center; color:#0000ff; font-weight:bold; white-space:nowrap;}
+  P.toc				{font-size:20pt; line-height:1.6em; font-family:DartNBSP, "바탕"; text-align:center; color:#0000ff; font-weight:bold;}
+  P.note			{font-size:12pt; line-height:1.6em; font-family:DartNBSP, "바탕"; text-align:left; color:#ff0000;}
+  P.caution		{font-size:12pt; line-height:1.6em; font-family:DartNBSP, "바탕"; text-align:left; color:#ff0000;}
+  P.description{font-size:12pt; line-height:1.6em; font-family:DartNBSP, "바탕", Batang; text-align:left; color:#324a58;}
+  P.warning		{font-size:12pt; line-height:1.6em; font-family:DartNBSP, "바탕", Batang; text-align:left; color:#ff0000;}
+  P.comment	{font-size:10pt; line-height:1.6em; font-family:DartNBSP, "굴림", Gulim; text-align:left; color:#008800; font-weight:bold;}
+  P.notice		{font-size:9pt; line-height:1.6em; font-family:DartNBSP, "바탕", Batang; text-align:left; color:#dd0000; margin-bottom: 6px;} 
+  P.pgbrk			{height:24px;}
+  
+  @font-face  { font-family: 'DartNBSP';  src: local('Tahoma Bold'); unicode-range: U+00A0;   }
+ 
+  div#notice		{border: solid 4px green; width:600px; padding:8px; background-color:#dddddd;}  
+
+  a.toc				{text-decoration:none; color:blue;}
+  a.refno			{text-decoration:underline; color:blue;}
+
+  img.left			{display:block; text-align:left;}
+  img.center		{display:block; text-align:center;}
+  img.right		{display:block; text-align:right;} </STYLE>
+
+</HEAD>
+
+<BODY bgcolor=#FFFFFF>
+<SCRIPT>
+var win_num = 0;
+function openReportViewer(rcpNo, dcmNo){
+	var url = "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=" + rcpNo;
+	if (dcmNo) {
+	url += "&dcmNo=" + dcmNo;
+	}
+
+	window.open(url, rcpNo+win_num, "width=1024,height=768,resizable=yes");
+	win_num++;
+}
+</SCRIPT>
+
+
+<P class=correction><a class='toc' href='~$DartHTML-TOC.htm#15' name='15' target='toc'>정 정 신 고 (보고)</a></P>
+
+<TABLE class=nb width=600>
+<COLGROUP>
+  <COL width=600></COL>
+</COLGROUP>
+<TBODY>
+<TR>
+  <TD width=600 height=20 align="LEFT" valign="TOP"></TD>
+</TR>
+<TR>
+  <TD width=600 height=20 align="RIGHT" valign="TOP">2023년 8월 17일</TD>
+</TR>
+</TBODY>
+</TABLE>
+
+<P><br></P><P><br></P><P style='font-size: 14pt;'>1. 정정대상 공시서류 : 감사계약체결보고서</P><P><br></P><P style='font-size: 14pt;'>2. 정정대상 공시서류의 최초제출일 : 2023년 2월 28일</P><P style='font-size: 14pt;'><br></P><P style='font-size: 14pt;'>3. 정정사유 : 담당사원 변경</P><P><br></P><P style='font-size: 14pt;'>4. 정정사항</P>
+
+<TABLE border=1 width=600>
+<COLGROUP>
+  <COL width=156></COL>
+  <COL width=222></COL>
+  <COL width=222></COL>
+</COLGROUP>
+<THEAD>
+<TR>
+  <TH width=156 height=20 align="CENTER" valign="TOP">항 &nbsp;목</TH>
+  <TH width=222 height=20 align="CENTER" valign="TOP">정정전</TH>
+  <TH width=222 height=20 align="CENTER" valign="TOP">정정후</TH>
+</TR>
+</THEAD>
+<TBODY>
+<TR>
+  <TD width=156 height=43 align="LEFT" valign="TOP">4-1. 담당사원</TD>
+  <TD width=222 height=43 align="LEFT" valign="TOP">공인회계사 등록번호: 14265<br>
+성명: 박윤호</TD>
+  <TD width=222 height=43 align="LEFT" valign="TOP">공인회계사 등록번호: 10229<br>
+성명: 정영훈</TD>
+</TR>
+<TR>
+  <TD width=156 height=43 align="LEFT" valign="TOP">4-2. 연락처</TD>
+  <TD width=222 height=43 align="LEFT" valign="TOP">02-553-7471</TD>
+  <TD width=222 height=43 align="LEFT" valign="TOP">02-567-0835</TD>
+</TR>
+</TBODY>
+</TABLE>
+
+<P><br></P>
+<P class=pgbrk></P>
+<P class=section-1><a class='toc' href='~$DartHTML-TOC.htm#55' name='55' target='toc'>감사계약체결보고서</a></P><P><br></P>
+
+<TABLE class=nb width=716>
+<COLGROUP>
+  <COL width=716></COL>
+</COLGROUP>
+<TBODY>
+<TR>
+  <TD width=716 height=43 align="LEFT" valign="TOP">「주식회사 등의 외부감사에 관한 법률」 제12조제2항 및 같은 법 시행령 제18조제4항에 따라 외부감사계약체결에 관한 사항을 금융감독원장에게 보고합니다.</TD>
+</TR>
+</TBODY>
+</TABLE>
+
+<P><br></P><P>1. 감사인 개황</P>
+
+<TABLE border=1 width=718>
+<COLGROUP>
+  <COL width=377></COL>
+  <COL width=341></COL>
+</COLGROUP>
+<TBODY>
+<TR>
+  <TD width=377 height=20 align="LEFT">&nbsp;1-1 &nbsp; 당기 계약체결 감사인명</TD>
+  <TD width=341 height=20 align="CENTER">선진회계법인</TD>
+</TR>
+<TR>
+  <TD width=377 height=20 align="LEFT">&nbsp;1-2 &nbsp; 당기 계약체결 감사인 고유번호</TD>
+  <TD width=341 height=20 align="CENTER">00260329</TD>
+</TR>
+<TR>
+  <TD width=377 height=20 align="LEFT">&nbsp;1-3 &nbsp; 전기 감사인명</TD>
+  <TD width=341 height=20 align="CENTER">선진회계법인</TD>
+</TR>
+</TBODY>
+</TABLE>
+
+<P><br>
+2. 감사대상회사 개황</P>
+
+<TABLE border=1 width=718>
+<COLGROUP>
+  <COL width=87></COL>
+  <COL width=291></COL>
+  <COL width=57></COL>
+  <COL width=57></COL>
+  <COL width=57></COL>
+  <COL width=57></COL>
+  <COL width=56></COL>
+  <COL width=56></COL>
+</COLGROUP>
+<TBODY>
+<TR>
+  <TD width=378 height=20 colspan="2" align="LEFT">&nbsp;2-1 &nbsp; 회사명</TD>
+  <TD width=340 height=20 colspan="6" align="CENTER">국제마리타임17호선박투자회사</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 colspan="2" align="LEFT">&nbsp;2-2 &nbsp; 회사고유번호</TD>
+  <TD width=340 height=20 colspan="6" align="CENTER">01086186</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 colspan="2" align="LEFT">&nbsp;2-3 &nbsp; 법인등록번호</TD>
+  <TD width=340 height=20 colspan="6" align="CENTER">220111-0118323</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 colspan="2" align="LEFT">&nbsp;2-4 &nbsp; 사업자등록번호(본점)</TD>
+  <TD width=340 height=20 colspan="6" align="CENTER">616-86-22574</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 colspan="2" align="LEFT">&nbsp;2-5 &nbsp; 법인 구분</TD>
+  <TD class=tu width=340 height=20 colspan="6" align="CENTER">기타비상장주식회사</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 colspan="2" align="LEFT">&nbsp; &nbsp;2-5-1 금융회사에 해당 여부</TD>
+  <TD class=tu width=340 height=20 colspan="6" align="CENTER">아니오</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 colspan="2" align="LEFT">&nbsp; &nbsp;2-5-2 대형비상장주식회사에 해당 여부</TD>
+  <TD class=tu width=340 height=20 colspan="6" align="CENTER">아니오</TD>
+</TR>
+<TR>
+  <TD width=87 height=126 rowspan="3" align="LEFT">(2-5에서 "사업보고서제출비상장법인"인 경우)</TD>
+  <TD width=291 height=20 align="LEFT">2-5-3 &nbsp;채무증권 등의 증권시장 상장 여부</TD>
+  <TD class=tu width=340 height=20 colspan="6" align="CENTER">-</TD>
+</TR>
+<TR>
+  <TD width=291 height=43 align="LEFT">2-5-4 &nbsp;주권 또는 채무증권 등의 모집 또는 매출 여부</TD>
+  <TD class=tu width=340 height=43 colspan="6" align="CENTER">-</TD>
+</TR>
+<TR>
+  <TD width=291 height=43 align="LEFT">2-5-5 &nbsp;주권 또는 채무증권 등의 소유자 수가 500인 이상에 해당하는지 여부</TD>
+  <TD class=tu width=340 height=43 colspan="6" align="CENTER">-</TD>
+</TR>
+<TR>
+  <TD width=87 height=66 rowspan="2" align="LEFT">(2-5에서 "유한회사"인 경우)</TD>
+  <TD width=291 height=20 align="LEFT">2-5-6 주식회사에서 유한회사로 변경여부</TD>
+  <TD class=tu width=340 height=20 colspan="6" align="CENTER">-</TD>
+</TR>
+<TR>
+  <TD width=291 height=36 align="LEFT">2-5-7 변경일자(2-5-6에서 "예"인 경우)</TD>
+  <TD class=tu width=340 height=36 colspan="6" align="CENTER">-</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 colspan="2" align="LEFT">&nbsp;2-6 &nbsp; 대표자명</TD>
+  <TD width=340 height=20 colspan="6" align="CENTER">전주식</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 colspan="2" align="LEFT">&nbsp;2-7 &nbsp; 대표 전화번호</TD>
+  <TD width=340 height=20 colspan="6" align="CENTER">02-2090-4600</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 colspan="2" align="LEFT">&nbsp;2-8 &nbsp; 주소</TD>
+  <TD width=340 height=20 colspan="6" align="CENTER">제주특별자치도 제주시 연삼로 473</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 colspan="2" align="LEFT">&nbsp;2-9 &nbsp; 우편번호</TD>
+  <TD width=340 height=20 colspan="6" align="CENTER">63217</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 colspan="2" align="LEFT">&nbsp;2-10 &nbsp;당기 사업연도 결산기 변경 여부</TD>
+  <TD class=tu width=340 height=20 colspan="6" align="CENTER">아니오</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 colspan="2" align="LEFT">&nbsp; &nbsp;2-10-1 &nbsp;결산기 변경 내용(2-10에서 "예"인 경우)</TD>
+  <TD class=tu width=57 height=20 align="CENTER">-</TD>
+  <TD width=57 height=20 align="LEFT">월에서</TD>
+  <TD class=tu width=57 height=20 align="CENTER">-</TD>
+  <TD width=169 height=20 colspan="3" align="LEFT">월로 변경</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 colspan="2" align="LEFT">&nbsp;2-11 &nbsp; 당기 사업연도 적용 회계처리기준</TD>
+  <TD class=tu width=340 height=20 colspan="6" align="CENTER">일반기업회계기준</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 colspan="2" align="LEFT">&nbsp;2-12 &nbsp; 연결재무제표 작성 여부</TD>
+  <TD class=tu width=340 height=20 colspan="6" align="CENTER">예</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 colspan="2" align="LEFT">&nbsp;2-13 &nbsp; 지배주주(특수관계자포함)의 지분율합계 (%)</TD>
+  <TD width=340 height=20 colspan="6" align="CENTER">99.996</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 colspan="2" align="LEFT">&nbsp; &nbsp;2-13-1 &nbsp;지배주주 중 최대지분 소유자명</TD>
+  <TD width=340 height=20 colspan="6" align="CENTER">신한은행</TD>
+</TR>
+<TR>
+  <TD width=378 height=43 colspan="2" align="LEFT">&nbsp; &nbsp;2-13-2 &nbsp;대표이사와 지배주주와의 특수관계자 해당 여부</TD>
+  <TD class=tu width=340 height=43 colspan="6" align="CENTER">아니오</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 colspan="2" align="LEFT">&nbsp;2-14 &nbsp; 정기주주총회 개최시기</TD>
+  <TD width=171 height=20 colspan="3" align="RIGHT">사업연도 종료 후</TD>
+  <TD class=tu width=57 height=20 align="CENTER">3</TD>
+  <TD width=112 height=20 colspan="2" align="LEFT">월 이내</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 colspan="2" align="LEFT">&nbsp;2-15 감사위원회의 설치여부</TD>
+  <TD class=tu width=340 height=20 colspan="6" align="CENTER">아니오</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 colspan="2" align="LEFT">&nbsp; &nbsp;2-15-1 감사위원회 설치 대상여부</TD>
+  <TD class=tu width=340 height=20 colspan="6" align="CENTER">아니오</TD>
+</TR>
+<TR>
+  <TD width=378 height=73 colspan="2" rowspan="2" align="LEFT">&nbsp;2-16 과거 6개사업연도 중 감사인 지정 여부</TD>
+  <TD width=57 height=20 align="CENTER">전기</TD>
+  <TD width=57 height=20 align="CENTER">2기전</TD>
+  <TD width=57 height=20 align="CENTER">3기전</TD>
+  <TD width=57 height=20 align="CENTER">4기전</TD>
+  <TD width=56 height=20 align="CENTER">5기전</TD>
+  <TD width=56 height=20 align="CENTER">6기전</TD>
+</TR>
+<TR>
+  <TD class=tu width=57 height=43 align="CENTER">자유선임</TD>
+  <TD class=tu width=57 height=43 align="CENTER">자유선임</TD>
+  <TD class=tu width=57 height=43 align="CENTER">자유선임</TD>
+  <TD class=tu width=57 height=43 align="CENTER">자유선임</TD>
+  <TD class=tu width=56 height=43 align="CENTER">자유선임</TD>
+  <TD class=tu width=56 height=43 align="CENTER">자유선임</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 colspan="2" align="LEFT">&nbsp;2-17 전기 내부회계관리제도 운영 대상여부</TD>
+  <TD class=tu width=340 height=20 colspan="6" align="CENTER">아니오</TD>
+</TR>
+</TBODY>
+</TABLE>
+
+<P><br>
+3. 감사계약 내용</P>
+
+<TABLE border=1 width=718>
+<COLGROUP>
+  <COL width=378></COL>
+  <COL width=29></COL>
+  <COL width=33></COL>
+  <COL width=26></COL>
+  <COL width=43></COL>
+  <COL width=42></COL>
+  <COL width=39></COL>
+  <COL width=46></COL>
+  <COL width=41></COL>
+  <COL width=41></COL>
+</COLGROUP>
+<TBODY>
+<TR>
+  <TD width=378 height=20 align="LEFT">&nbsp;3-1 &nbsp; 감사계약 체결 구분</TD>
+  <TD class=tu width=340 height=20 colspan="9" align="CENTER">자유수임</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 align="LEFT">&nbsp;3-2 &nbsp; 신규 외부감사 대상 해당 여부</TD>
+  <TD class=tu width=340 height=20 colspan="9" align="CENTER">아니오</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 align="LEFT">&nbsp;3-3 회사의 감사인을 선정한 자</TD>
+  <TD class=tu width=340 height=20 colspan="9" align="CENTER">감사</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 align="LEFT">&nbsp; &nbsp;3-3-1 감사가 없는 회사에 해당 여부</TD>
+  <TD class=tu width=340 height=20 colspan="9" align="CENTER">아니오</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 align="LEFT">&nbsp;3-4 감사인선임위원회 또는 사원총회의 승인 여부</TD>
+  <TD class=tu width=340 height=20 colspan="9" align="CENTER">아니오</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 align="LEFT">&nbsp;3-5 &nbsp; 감사계약 체결일자</TD>
+  <TD class=tu width=340 height=20 colspan="9" align="CENTER">2023년 02월 14일</TD>
+</TR>
+<TR>
+  <TD width=378 height=89 align="LEFT">&nbsp;3-6 &nbsp; 감사대상 사업연도</TD>
+  <TD width=29 height=89 align="CENTER">제</TD>
+  <TD width=33 height=89 align="RIGHT">10</TD>
+  <TD width=26 height=89 align="CENTER">기</TD>
+  <TD class=tu width=43 height=89 align="CENTER">2023년 01월</TD>
+  <TD width=42 height=89 align="CENTER">부터</TD>
+  <TD class=tu width=39 height=89 align="CENTER">2023년 12월</TD>
+  <TD width=46 height=89 align="CENTER">까지</TD>
+  <TD width=41 height=89 align="RIGHT">12</TD>
+  <TD width=41 height=89 align="CENTER">개월</TD>
+</TR>
+<TR>
+  <TD width=378 height=43 align="LEFT">&nbsp;3-7 &nbsp; 주권상장법인의 3개 사업연도 연속감사인 경우 당기감사차수</TD>
+  <TD class=tu width=340 height=43 colspan="9" align="CENTER">-</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 align="LEFT">&nbsp;3-8 &nbsp; 연결재무제표에 대한 감사계약 체결여부</TD>
+  <TD class=tu width=340 height=20 colspan="9" align="CENTER">예</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 align="LEFT">&nbsp;3-9 &nbsp; 감사보수(연결감사보수 포함)</TD>
+  <TD width=258 height=20 colspan="7" align="RIGHT">20</TD>
+  <TD width=82 height=20 colspan="2" align="LEFT">백만원</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 align="LEFT">&nbsp; &nbsp;3-9-1 &nbsp;연결감사보수 별도구분 여부</TD>
+  <TD class=tu width=340 height=20 colspan="9" align="CENTER">아니오</TD>
+</TR>
+<TR>
+  <TD width=378 height=20 align="LEFT">&nbsp; &nbsp;3-9-2 &nbsp;연결감사보수(3-9-1에서 "예"인 경우)</TD>
+  <TD width=258 height=20 colspan="7" align="RIGHT">-</TD>
+  <TD width=82 height=20 colspan="2" align="LEFT">백만원</TD>
+</TR>
+</TBODY>
+</TABLE>
+
+<P><br></P><P>4. 보고자</P>
+
+<TABLE border=1 width=718>
+<COLGROUP>
+  <COL width=180></COL>
+  <COL width=161></COL>
+  <COL width=117></COL>
+  <COL width=58></COL>
+  <COL width=67></COL>
+  <COL width=55></COL>
+  <COL width=80></COL>
+</COLGROUP>
+<TBODY>
+<TR>
+  <TD width=180 height=20 align="LEFT">&nbsp;4-1 &nbsp; 담당사원</TD>
+  <TD width=161 height=20 align="CENTER">공인회계사등록번호</TD>
+  <TD width=117 height=20 align="CENTER">10229</TD>
+  <TD width=58 height=20 align="CENTER">직위</TD>
+  <TD width=67 height=20 align="CENTER">이사</TD>
+  <TD width=55 height=20 align="CENTER">성명</TD>
+  <TD width=80 height=20 align="CENTER">정영훈</TD>
+</TR>
+<TR>
+  <TD width=180 height=20 align="LEFT">&nbsp;4-2 &nbsp; 연락처</TD>
+  <TD width=538 height=20 colspan="6" align="CENTER">02-567-0835</TD>
+</TR>
+</TBODY>
+</TABLE>
+
+<P><br></P><P>5. 감사계약서 첨부</P>
+
+<TABLE border=1 width=600>
+<COLGROUP>
+  <COL width=100></COL>
+  <COL width=500></COL>
+</COLGROUP>
+<TBODY>
+<TR>
+  <TD width=100 height=20 align="CENTER" valign="TOP">설명</TD>
+  <TD width=500 height=20 align="LEFT">외부감사계약서_국제마리타임17호_FY2023</TD>
+</TR>
+</TBODY>
+</TABLE>
+
+
+<P class=description>FY23_국제마리타임17호선박투자회사_외부감사계약서</P>
+<br><a href='C:\DART\Appendix\fy23_국제마리타임17호선박투자회사_외부감사계약서.pdf'>fy23_국제마리타임17호선박투자회사_외부감사계약서.pdf</a><br><br><a href='C:\DART\Appendix\공문(담당사원변경)_국제마리타임17호.pdf'>공문(담당사원변경)_국제마리타임17호.pdf</a></br>
+
+</BODY>
+</HTML>

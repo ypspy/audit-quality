@@ -1,0 +1,29 @@
+# 프로덕션 배포용 오버라이드 — GHCR 이미지 사용
+# 사용: GHCR_IMAGE_PREFIX=ghcr.io/OWNER IMAGE_TAG=latest \
+#      docker compose -f docker-compose.yml -f docker-compose.prod.yml pull && up -d
+# OWNER는 GitHub 사용자/조직명으로 교체
+
+services:
+  forward-auth:
+    image: ${GHCR_IMAGE_PREFIX}/audit-quality-forward-auth:${IMAGE_TAG:-latest}
+    build: ~
+
+  qualityportal:
+    image: ${GHCR_IMAGE_PREFIX}/audit-quality-portal:${IMAGE_TAG:-latest}
+    build: ~
+
+  qualityeval:
+    image: ${GHCR_IMAGE_PREFIX}/audit-quality-eval:${IMAGE_TAG:-latest}
+    build: ~
+
+  timesheet:
+    image: ${GHCR_IMAGE_PREFIX}/audit-quality-timesheet:${IMAGE_TAG:-latest}
+    build: ~
+
+  dart-for-auditor:
+    image: ${GHCR_IMAGE_PREFIX}/audit-quality-dart:${IMAGE_TAG:-latest}
+    build: ~
+
+  local-inquiry-site:
+    image: ${GHCR_IMAGE_PREFIX}/audit-quality-inquiry:${IMAGE_TAG:-latest}
+    build: ~

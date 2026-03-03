@@ -1,0 +1,34 @@
+# Traefik v3 정적 설정 (Phase 1-2)
+# 로컬: 자체 서명 인증서 사용 / 프로덕션: certResolvers로 Let's Encrypt
+
+api:
+  dashboard: true
+
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+
+providers:
+  docker:
+    exposedByDefault: false
+    network: app
+  file:
+    directory: /etc/traefik/dynamic
+    watch: true
+
+# 프로덕션: Let's Encrypt 사용 시 routers에 tls.certResolver=letsencrypt 적용
+# 이메일은 실행 시 --certificatesresolvers.letsencrypt.acme.email=... 로 오버라이드
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: admin@example.com
+      storage: /etc/traefik/acme.json
+      httpChallenge:
+        entryPoint: web
+
+# 로그
+log:
+  level: INFO
+accessLog: {}
