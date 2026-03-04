@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const url = `${DART_BASE}/api/doc_outline?url=${encodeURIComponent(urlParam)}`;
+  const url = `${DART_BASE}/api/v1/doc_outline?url=${encodeURIComponent(urlParam)}`;
 
   try {
     const res = await fetch(url, {

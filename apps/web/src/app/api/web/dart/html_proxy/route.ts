@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "URL이 필요합니다" }, { status: 400 });
   }
 
-  const url = `${DART_BASE}/api/html_proxy?url=${encodeURIComponent(urlParam)}`;
+  const url = `${DART_BASE}/api/v1/html_proxy?url=${encodeURIComponent(urlParam)}`;
 
   try {
     const res = await fetch(url, {

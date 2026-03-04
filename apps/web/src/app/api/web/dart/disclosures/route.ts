@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url);
   const query = searchParams.toString();
-  const url = `${DART_BASE}/api/disclosures${query ? `?${query}` : ""}`;
+  const url = `${DART_BASE}/api/v1/disclosures${query ? `?${query}` : ""}`;
 
   try {
     const res = await fetch(url, {

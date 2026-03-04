@@ -22,7 +22,7 @@ export async function GET(
   }
 
   const { corp_code } = await params;
-  const url = `${DART_BASE}/api/company-names/${encodeURIComponent(corp_code)}`;
+  const url = `${DART_BASE}/api/v1/company-names/${encodeURIComponent(corp_code)}`;
 
   try {
     const res = await fetch(url, {

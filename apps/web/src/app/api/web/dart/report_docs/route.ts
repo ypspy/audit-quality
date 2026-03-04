@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Invalid or missing url" }, { status: 400 });
   }
 
-  const url = `${DART_BASE}/api/report_docs?url=${encodeURIComponent(urlParam)}`;
+  const url = `${DART_BASE}/api/v1/report_docs?url=${encodeURIComponent(urlParam)}`;
 
   try {
     const res = await fetch(url, {
