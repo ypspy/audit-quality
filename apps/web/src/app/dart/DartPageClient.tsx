@@ -15,10 +15,13 @@ type Disclosure = {
 };
 
 type ApiResponse = {
-  total: number;
-  disclosures: Disclosure[];
-  page: number;
-  limit: number;
+  data: Disclosure[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 };
 
 const DEFAULT_LIMIT = 20;
@@ -81,8 +84,8 @@ export function DartPageClient() {
       }
 
       const json: ApiResponse = await res.json();
-      setDisclosures(json.disclosures ?? []);
-      setTotal(json.total ?? 0);
+      setDisclosures(json.data ?? []);
+      setTotal(json.pagination?.total ?? 0);
     } catch (err) {
       setError(err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.");
     } finally {
