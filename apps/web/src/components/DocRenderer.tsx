@@ -42,17 +42,43 @@ function MdHeading({
 }) {
   const id = slugify(childrenToText(children));
   const Tag = `h${level}` as "h2" | "h3" | "h4";
+
+  function copyAnchor() {
+    const url = `${window.location.origin}${window.location.pathname}#${id}`;
+    navigator.clipboard.writeText(url);
+  }
+
+  function copyQuote() {
+    const text = childrenToText(children);
+    const url = `${window.location.origin}${window.location.pathname}#${id}`;
+    const snippet = `> ${text}\n> \n> 출처: [규제 업데이트](${url})`;
+    navigator.clipboard.writeText(snippet);
+  }
+
   return (
-    <Tag id={id} className="group relative">
-      {children}
+    <Tag id={id} className="group relative flex items-center gap-2">
+      <span>{children}</span>
       {id && (
-        <a
-          href={`#${id}`}
-          className="ml-2 opacity-0 group-hover:opacity-50 text-gray-400 hover:text-gray-600 no-underline text-sm"
-          aria-hidden="true"
-        >
-          #
-        </a>
+        <span className="opacity-0 group-hover:opacity-100 flex gap-1 transition-opacity">
+          <button
+            type="button"
+            onClick={copyAnchor}
+            title="링크 복사"
+            className="text-gray-400 hover:text-indigo-500 text-sm leading-none"
+            aria-label="섹션 링크 복사"
+          >
+            #
+          </button>
+          <button
+            type="button"
+            onClick={copyQuote}
+            title="인용 스니펫 복사"
+            className="text-gray-400 hover:text-indigo-500 text-xs leading-none"
+            aria-label="인용 스니펫 복사"
+          >
+            &quot;
+          </button>
+        </span>
       )}
     </Tag>
   );
