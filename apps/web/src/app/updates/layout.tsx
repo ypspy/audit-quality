@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Noto_Sans_KR } from "next/font/google";
 import { DocLayout } from "@/components/DocLayout";
+import { UpdatesChat } from "@/components/UpdatesChat";
 import { parseNav } from "@/lib/mkdocs-nav";
 
 const notoSansKr = Noto_Sans_KR({
@@ -21,6 +22,7 @@ export default function UpdatesLayout({
   return (
     <div className={`${notoSansKr.variable} font-[family-name:var(--font-noto-sans-kr)]`}>
       <DocLayout nav={items}>{children}</DocLayout>
+      <UpdatesChat />
     </div>
   );
 }
