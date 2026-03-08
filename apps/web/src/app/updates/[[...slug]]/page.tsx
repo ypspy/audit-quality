@@ -6,6 +6,7 @@ import { UpdatesSearch } from "@/components/UpdatesSearch";
 import { getDocBySlug, getDocSlugs, extractHeadings } from "@/lib/docs";
 import { parseNav } from "@/lib/mkdocs-nav";
 import { loadUpdatesIndex, uniqueSources } from "@/lib/updates-index";
+import { DocPermalink } from "@/components/DocPermalink";
 
 type UpdatesPageProps = {
   params: Promise<{ slug?: string[] }>;
@@ -59,6 +60,9 @@ export default async function UpdatesPage({ params }: UpdatesPageProps) {
     <div className="flex min-h-full">
       <div className="flex-1 min-w-0 flex justify-center">
         <div className="w-full max-w-3xl px-6 py-8">
+          <div className="mb-4 flex justify-end">
+            <DocPermalink path={currentPath} />
+          </div>
           <DocRenderer source={doc.content} />
           {(prev || next) && (
             <nav className="mt-12 pt-6 border-t border-gray-200 dark:border-gray-700 flex justify-between gap-4">
