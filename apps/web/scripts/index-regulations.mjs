@@ -10,14 +10,14 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import pg from "pg";
-import Anthropic from "@anthropic-ai/sdk";
+import { VoyageAIClient } from "voyageai";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const contentDir = path.resolve(__dirname, "../src/content/updates");
 const indexFile = path.resolve(__dirname, "../src/content/updates-index.json");
 
 const client = new pg.Client({ connectionString: process.env.DATABASE_URL });
-const anthropic = new Anthropic();
+const voyage = new VoyageAIClient({ apiKey: process.env.VOYAGE_API_KEY });
 
 function chunkByHeadings(content, maxTokens = 500) {
   const lines = content.split("\n");
@@ -51,11 +51,11 @@ function chunkByHeadings(content, maxTokens = 500) {
 }
 
 async function embedTexts(texts) {
-  const response = await anthropic.embeddings.create({
-    model: "voyage-3",
+  const response = await voyage.embed({
     input: texts,
+    model: "voyage-3",
   });
-  return response.data.map((d) => d.embedding);
+  return (response.data ?? []).map((d) => d.embedding ?? []);
 }
 
 async function main() {

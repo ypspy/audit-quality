@@ -1,17 +1,19 @@
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import pg from "pg";
+import { VoyageAIClient } from "voyageai";
 
 const anthropic = new Anthropic();
+const voyage = new VoyageAIClient({ apiKey: process.env.VOYAGE_API_KEY });
 
 const pgPool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 
 async function embedQuery(text: string): Promise<number[]> {
-  const res = await anthropic.embeddings.create({
-    model: "voyage-3",
+  const res = await voyage.embed({
     input: [text],
+    model: "voyage-3",
   });
-  return res.data[0].embedding;
+  return res.data?.[0]?.embedding ?? [];
 }
 
 async function retrieveChunks(embedding: number[], topK = 5) {
