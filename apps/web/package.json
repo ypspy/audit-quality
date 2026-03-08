@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "sync-docs": "node scripts/sync-docs.mjs",
-    "prebuild": "npm run sync-docs"
+    "build-index": "node scripts/build-updates-index.mjs",
+    "prebuild": "npm run sync-docs && node scripts/build-updates-index.mjs"
   },
   "dependencies": {
     "fuse.js": "^7.1.0",
