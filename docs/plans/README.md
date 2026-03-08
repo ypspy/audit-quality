@@ -12,3 +12,4 @@
 | [2026-03-05-dart-link-ingestion-refactor.md](./2026-03-05-dart-link-ingestion-refactor.md) | `dart-for-auditor` 링크 입수 리팩토링 — toc-collector 확장, dart_documents·dart_toc_nodes 모델 생성, report_docs DB-first 전환 (8 Tasks) |
 | [2026-03-06-dart-tree-api.md](./2026-03-06-dart-tree-api.md) | `dart-for-auditor` DB 초기화 + 3-level 계층 트리 API — tocCollection 활성화, disclosureTreeController 신규, GET /api/v1/dart/tree |
 | [2026-03-07-quality-updates-frontend-design.md](./2026-03-07-quality-updates-frontend-design.md) | 규제 업데이트 서비스 프론트엔드 개선 설계 — P1 카드 인덱스·검색·인용 복사, P2 MCP 서버, P3 RAG 채팅 UI |
+| [2026-03-07-quality-updates-frontend.md](./2026-03-07-quality-updates-frontend.md) | 위 설계의 구현 계획 — 14 Tasks (fuse.js 검색, 모바일 드로어, 인용 복사, MCP 서버, pgvector RAG, 채팅 위젯) |
