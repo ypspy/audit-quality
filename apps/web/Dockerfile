@@ -19,7 +19,8 @@ COPY quality-updates/mkdocs.yml ./src/nav/updates.yml
 COPY policy/my-project/mkdocs.yml ./src/nav/policy.yml
 ENV NEXT_TELEMETRY_DISABLED=1
 # prebuild(sync-docs) 생략 — 콘텐츠는 위 COPY로 이미 반영
-RUN npx next build
+# updates-index.json 생성 (클라이언트 검색 + MCP 서버 공유)
+RUN node scripts/build-updates-index.mjs && npx next build
 
 FROM base AS runner
 WORKDIR /app

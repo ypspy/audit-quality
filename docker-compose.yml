@@ -110,6 +110,10 @@ services:
       DART_INTERNAL_URL: http://dart-for-auditor:4000
       # local-inquiry-site API 프록시용 (Phase 2-6)
       CLIENT_INTERNAL_URL: http://local-inquiry-site:8000
+      # P3: RAG 채팅 BFF
+      DATABASE_URL: ${PGVECTOR_DATABASE_URL:-}
+      VOYAGE_API_KEY: ${VOYAGE_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     depends_on:
       - keycloak
     networks:
@@ -345,6 +349,30 @@ services:
       - "traefik.http.routers.r-client.middlewares=forwardauth-auth@file,strip-client,ratelimit-global@file,ipallowlist-client@file"
       - "traefik.http.services.s-client.loadbalancer.server.port=8000"
       - "traefik.http.middlewares.strip-client.stripprefix.prefixes=/api/client"
+
+  # ---------- Phase 3-2: MCP 서버 (규제 업데이트 검색) ----------
+  # stdio transport — Claude Code / Cursor 등 MCP 클라이언트가 직접 exec으로 연결
+  # docker compose run --rm mcp-updates 로 단독 실행 가능
+  mcp-updates:
+    build:
+      context: ./apps/mcp-updates
+      dockerfile: Dockerfile
+    container_name: audit-quality-mcp-updates
+    restart: "no"
+    profiles:
+      - mcp
+    environment:
+      # updates-index.json 경로 (web 빌드 결과물 볼륨 마운트)
+      UPDATES_INDEX_PATH: /app/updates-index.json
+      UPDATES_CONTENT_PATH: /app/updates-content
+    volumes:
+      # web 서비스 빌드 시 생성된 인덱스 + 콘텐츠를 read-only로 공유
+      - ./apps/web/src/content/updates-index.json:/app/updates-index.json:ro
+      - ./apps/web/src/content/updates:/app/updates-content:ro
+    stdin_open: true
+    tty: true
+    networks:
+      - app
 
   # Phase 3-1: /policy, /updates는 Next.js MDX로 서빙 (policy-docs/updates-docs 컨테이너 미사용)
 
