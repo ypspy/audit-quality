@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "audit-regulations": {
+      "command": "node",
+      "args": ["apps/mcp-updates/dist/index.js"],
+      "env": {
+        "UPDATES_INDEX_PATH": "apps/web/src/content/updates-index.json",
+        "UPDATES_CONTENT_PATH": "apps/web/src/content/updates"
+      },
+      "description": "회계·감사 규제 업데이트 검색 및 조회 (MCP)"
+    }
+  }
+}
