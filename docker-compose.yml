@@ -377,18 +377,23 @@ services:
   # ---------- document-ingestor + gotenberg ----------
   document-ingestor:
     build: ./apps/document-ingestor
+    container_name: audit-quality-document-ingestor
     restart: unless-stopped
     environment:
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
       - GOTENBERG_URL=http://gotenberg:3000
       - QUALITY_UPDATES_PATH=/workspace/quality-updates
     volumes:
       - ${QUALITY_UPDATES_HOST_PATH:-../quality-updates}:/workspace/quality-updates
+    depends_on:
+      - gotenberg
     networks:
+      - app
       - internal
 
   gotenberg:
     image: gotenberg/gotenberg:8
+    container_name: audit-quality-gotenberg
     restart: unless-stopped
     networks:
       - internal
