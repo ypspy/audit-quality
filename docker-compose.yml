@@ -114,6 +114,8 @@ services:
       DATABASE_URL: ${PGVECTOR_DATABASE_URL:-}
       VOYAGE_API_KEY: ${VOYAGE_API_KEY:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      # document-ingestor BFF
+      DOCUMENT_INGESTOR_URL: ${DOCUMENT_INGESTOR_URL:-http://document-ingestor:8010}
     depends_on:
       - keycloak
     networks:

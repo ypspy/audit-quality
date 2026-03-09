@@ -22,7 +22,10 @@ def append_to_quarterly_file(
     source: str,
     item_md: str,
 ) -> None:
-    q_path = Path(updates_root) / year / quarter_filename
+    root = Path(updates_root).resolve()
+    q_path = (root / year / quarter_filename).resolve()
+    if not str(q_path).startswith(str(root)):
+        raise ValueError(f"경로 탐색 시도 차단: {q_path}")
     if not q_path.exists():
         raise FileNotFoundError(f"분기 파일 없음: {q_path}")
 

@@ -19,7 +19,10 @@ async def call_claude(text: str, source: str, category: str) -> dict:
         system=SYSTEM_PROMPT,
         messages=[{"role": "user", "content": f"기관: {source}\n분류: {category}\n\n{text[:8000]}"}],
     )
-    return json.loads(msg.content[0].text)
+    try:
+        return json.loads(msg.content[0].text)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Claude 응답 JSON 파싱 실패: {e}") from e
 
 async def call_claude_with_file(file_id: str, source: str, category: str) -> dict:
     msg = await _client.beta.messages.create(
@@ -35,4 +38,7 @@ async def call_claude_with_file(file_id: str, source: str, category: str) -> dic
         }],
         betas=["files-api-2025-04-14"],
     )
-    return json.loads(msg.content[0].text)
+    try:
+        return json.loads(msg.content[0].text)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Claude 응답 JSON 파싱 실패: {e}") from e
