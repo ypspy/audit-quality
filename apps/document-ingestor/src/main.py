@@ -35,3 +35,43 @@ async def ingest_file(file: UploadFile = File(...)):
         return {"file_id": file_id, "type": "pdf"}
 
     raise HTTPException(status_code=400, detail=f"지원하지 않는 형식: {name}")
+
+from pydantic import BaseModel as _BaseModel
+import src.summarize as _summarize_mod
+from src.drd import build_item_markdown, append_to_quarterly_file
+from src.config import QUALITY_UPDATES_PATH
+
+class SummarizeRequest(_BaseModel):
+    text: str | None = None
+    file_id: str | None = None
+    source: str
+    category: str
+
+class DrdSaveRequest(_BaseModel):
+    title: str
+    url: str
+    date: str
+    source: str
+    year: str
+    quarter_filename: str
+    summary: str
+
+@app.post("/summarize")
+async def summarize(req: SummarizeRequest):
+    if req.file_id:
+        result = await _summarize_mod.call_claude_with_file(req.file_id, req.source, req.category)
+    else:
+        result = await _summarize_mod.call_claude(req.text or "", req.source, req.category)
+    return result
+
+@app.post("/drd/save")
+async def drd_save(req: DrdSaveRequest):
+    item_md = build_item_markdown(req.date, req.title, req.url, req.summary)
+    append_to_quarterly_file(
+        QUALITY_UPDATES_PATH,
+        req.year,
+        req.quarter_filename,
+        req.source,
+        item_md,
+    )
+    return {"ok": True}
