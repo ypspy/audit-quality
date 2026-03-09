@@ -8,7 +8,7 @@ def build_item_markdown(date: str, title: str, url: str, summary: str) -> str:
         lines.append("")
         lines.append('    !!! note "주요 내용"')
         lines.append("")
-        for part in summary.split("  "):
+        for part in summary.split(" | "):
             part = part.strip()
             if part:
                 lines.append(f"        - {part}")

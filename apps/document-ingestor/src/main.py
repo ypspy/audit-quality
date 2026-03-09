@@ -2,6 +2,9 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from pydantic import BaseModel
 import src.ingest_url as _ingest_url_mod
 import src.ingest_file as _ingest_file_mod
+import src.summarize as _summarize_mod
+from src.drd import build_item_markdown, append_to_quarterly_file
+from src.config import QUALITY_UPDATES_PATH
 
 app = FastAPI(title="document-ingestor")
 
@@ -36,18 +39,13 @@ async def ingest_file(file: UploadFile = File(...)):
 
     raise HTTPException(status_code=400, detail=f"지원하지 않는 형식: {name}")
 
-from pydantic import BaseModel as _BaseModel
-import src.summarize as _summarize_mod
-from src.drd import build_item_markdown, append_to_quarterly_file
-from src.config import QUALITY_UPDATES_PATH
-
-class SummarizeRequest(_BaseModel):
+class SummarizeRequest(BaseModel):
     text: str | None = None
     file_id: str | None = None
     source: str
     category: str
 
-class DrdSaveRequest(_BaseModel):
+class DrdSaveRequest(BaseModel):
     title: str
     url: str
     date: str
@@ -67,11 +65,14 @@ async def summarize(req: SummarizeRequest):
 @app.post("/drd/save")
 async def drd_save(req: DrdSaveRequest):
     item_md = build_item_markdown(req.date, req.title, req.url, req.summary)
-    append_to_quarterly_file(
-        QUALITY_UPDATES_PATH,
-        req.year,
-        req.quarter_filename,
-        req.source,
-        item_md,
-    )
+    try:
+        append_to_quarterly_file(
+            QUALITY_UPDATES_PATH,
+            req.year,
+            req.quarter_filename,
+            req.source,
+            item_md,
+        )
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=422, detail=str(e))
     return {"ok": True}

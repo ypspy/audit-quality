@@ -9,8 +9,8 @@ SYSTEM_PROMPT = """당신은 회계·감사 규제 전문가입니다.
 1. title: 문서의 핵심 제목 (30자 이내)
 2. summary: 회계·감사 실무에서 중요한 변경사항 3~5가지 (각 항목 1~2문장)
 
-반드시 JSON으로만 응답:
-{"title": "...", "summary": "항목1 항목2 항목3"}"""
+반드시 JSON으로만 응답 (summary 항목 구분자는 " | "):
+{"title": "...", "summary": "항목1 | 항목2 | 항목3"}"""
 
 async def call_claude(text: str, source: str, category: str) -> dict:
     msg = await _client.messages.create(
