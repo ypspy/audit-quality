@@ -16,7 +16,6 @@ server.tool(
   {
     query: z.string().describe("검색어"),
     source: z.string().optional().describe("기관명 (금융감독원|금융위원회|회계기준원|공인회계사회)"),
-    category: z.string().optional().describe("카테고리"),
     date_from: z.string().optional().describe("시작일 (YYYY-MM-DD)"),
     date_to: z.string().optional().describe("종료일 (YYYY-MM-DD)"),
     limit: z.number().optional().describe("최대 결과 수 (기본 5)"),
@@ -32,9 +31,9 @@ server.tool(
 server.tool(
   "get_regulation",
   "특정 규제 문서의 전문을 조회합니다.",
-  { slug: z.string().describe("문서 slug (예: quality-updates/2025/2025-10-01_to_2025-12-31)") },
-  async ({ slug }) => {
-    const doc = getRegulation(slug);
+  { quarterlySlug: z.string().describe("분기 slug (예: quality-updates/2025/2025-10-01_to_2025-12-31)") },
+  async ({ quarterlySlug }) => {
+    const doc = getRegulation(quarterlySlug);
     if (!doc) {
       return { content: [{ type: "text", text: "문서를 찾을 수 없습니다." }] };
     }
@@ -47,8 +46,7 @@ server.tool(
   "최신 규제 업데이트 목록을 반환합니다.",
   {
     limit: z.number().optional().describe("최대 수 (기본 10)"),
-    source: z.string().optional(),
-    category: z.string().optional(),
+    source: z.string().optional().describe("기관명 (금융감독원|금융위원회|회계기준원|공인회계사회)"),
   },
   async (params) => {
     const results = listRegulations(params);

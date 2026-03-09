@@ -4,7 +4,6 @@ import { loadIndex, type IndexEntry } from "../lib/loader.js";
 export function searchRegulations(params: {
   query: string;
   source?: string;
-  category?: string;
   date_from?: string;
   date_to?: string;
   limit?: number;
@@ -12,12 +11,7 @@ export function searchRegulations(params: {
   let entries = loadIndex();
 
   if (params.source) {
-    entries = entries.filter((e) => e.sources.includes(params.source!));
-  }
-  if (params.category) {
-    entries = entries.filter((e) =>
-      e.category.toLowerCase().includes(params.category!.toLowerCase())
-    );
+    entries = entries.filter((e) => e.source === params.source);
   }
   if (params.date_from) {
     entries = entries.filter((e) => e.date >= params.date_from!);
@@ -28,7 +22,7 @@ export function searchRegulations(params: {
 
   if (params.query) {
     const fuse = new Fuse(entries, {
-      keys: ["title", "summary", "tags", "periodLabel"],
+      keys: ["title", "summary", "source", "periodLabel"],
       threshold: 0.35,
     });
     entries = fuse.search(params.query).map((r) => r.item);

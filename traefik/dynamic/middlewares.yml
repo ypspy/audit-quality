@@ -17,11 +17,14 @@ http:
       middlewares:
         - ratelimit-global
   services:
+    # 스트리밍(채팅) 응답을 위해 즉시 플러시
     s-web-root:
       loadBalancer:
         servers:
           - url: "http://web:3000"
         passHostHeader: true
+        responseForwarding:
+          flushInterval: "1ms"
   middlewares:
     # Keycloak JWT 검증 (ForwardAuth). 2xx면 통과, 401이면 거부.
     forwardauth-auth:

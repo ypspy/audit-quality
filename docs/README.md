@@ -33,14 +33,23 @@
 - **[adr/004-postgres.md](./adr/004-postgres.md)** — PostgreSQL 마이그레이션 결정
 - **[adr/005-mkdocs-traefik-integration.md](./adr/005-mkdocs-traefik-integration.md)** — MkDocs → Next.js MDX 렌더링 전환
 
+### 리팩토링 이력
+- **[refactoring/README.md](./refactoring/README.md)** — 리팩토링 문서 목적·규칙·템플릿
+- **[refactoring/cross-cutting/rf-2026-03-03-service-integration-guidelines.md](./refactoring/cross-cutting/rf-2026-03-03-service-integration-guidelines.md)** — 통합 웹 셸 + 개별 서비스 설계 일반론 (여러 서비스에 걸친 구조 정렬 가이드)
+
+### 설계·실험 계획 (기록)
+- **[plans/README.md](./plans/README.md)** — 일회성 설계·실험 계획 문서 안내
+- **[plans/2026-03-02-mkdocs-layout-design.md](./plans/2026-03-02-mkdocs-layout-design.md)** — /policy, /updates 3-panel 레이아웃 설계 기록
+- **[plans/2026-03-03-service-integration-agent-guide-design.md](./plans/2026-03-03-service-integration-agent-guide-design.md)** — 서비스 통합 가이드라인 §7~§10 Agent 참조 섹션 설계 기록
+
 ---
 
 ## 기획 문서
 
-- **[기획서_감사품질통합지원서비스.md](./기획서_감사품질통합지원서비스.md)** — 서비스 전체 기획 (배경, 목적, 아키텍처, 로드맵)
+- **[project-planning.md](./project-planning.md)** — 서비스 전체 기획 (배경, 목적, 아키텍처, 로드맵)
 - **[requirements.md](./requirements.md)** — 프로젝트 인벤토리 요약 (모듈별 기능·기술 스택)
-- **[PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md)** — 모듈별 역할 한눈에 보기
+- **[project-summary.md](./project-summary.md)** — 모듈별 역할 한눈에 보기
 
 ---
 
-*최초 작성: 2026-02-27 / 최종 수정: 2026-03-03*
+*최초 작성: 2026-02-27 / 최종 수정: 2026-03-03 (서비스 통합 가이드라인 §7~§10 Agent 참조 섹션 추가)*

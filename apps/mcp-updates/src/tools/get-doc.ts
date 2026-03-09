@@ -6,19 +6,20 @@ const CONTENT_BASE =
   process.env.UPDATES_CONTENT_PATH ??
   path.resolve(process.cwd(), "../../apps/web/src/content/updates");
 
-export function getRegulation(slug: string): {
+export function getRegulation(quarterlySlug: string): {
   title: string;
   date: string;
-  sources: string[];
-  category: string;
+  source: string;
+  periodLabel: string;
   content: string;
   path: string;
 } | null {
   const index = loadIndex();
-  const entry = index.find((e) => e.slug === slug);
+  // Use the first entry matching quarterlySlug to get metadata
+  const entry = index.find((e) => e.quarterlySlug === quarterlySlug);
   if (!entry) return null;
 
-  const filePath = path.join(CONTENT_BASE, `${slug}.md`);
+  const filePath = path.join(CONTENT_BASE, `${quarterlySlug}.md`);
   if (!fs.existsSync(filePath)) return null;
 
   const raw = fs.readFileSync(filePath, "utf-8");
@@ -28,8 +29,8 @@ export function getRegulation(slug: string): {
   return {
     title: entry.title,
     date: entry.date,
-    sources: entry.sources,
-    category: entry.category,
+    source: entry.source,
+    periodLabel: entry.periodLabel,
     content,
     path: entry.path,
   };

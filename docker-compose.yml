@@ -48,6 +48,27 @@ services:
       retries: 5
       start_period: 5s
 
+  pgvector:
+    image: pgvector/pgvector:pg16
+    container_name: audit-quality-pgvector
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: regulations
+      POSTGRES_USER: regulations
+      POSTGRES_PASSWORD: ${PGVECTOR_PASSWORD:-regulations}
+    volumes:
+      - pgvector_data:/var/lib/postgresql/data
+    networks:
+      - app
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U regulations -d regulations"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
   keycloak:
     image: quay.io/keycloak/keycloak:25.0.5
     container_name: audit-quality-keycloak
@@ -534,6 +555,7 @@ services:
 volumes:
   mongo_data:
   keycloak_data:
+  pgvector_data:
   inquiry_data:
   prometheus_data:
   loki_data:

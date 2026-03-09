@@ -1,5 +1,7 @@
 # 서비스 통합 가이드라인 — Agent 참조 섹션 설계
 
+**상태:** ✅ 완료
+
 ## 배경
 
 `docs/refactoring/cross-cutting/rf-2026-03-03-service-integration-guidelines.md`의 §1~§6은

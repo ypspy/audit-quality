@@ -10,7 +10,8 @@
     "sync-docs": "node scripts/sync-docs.mjs",
     "build-index": "node scripts/build-updates-index.mjs",
     "prebuild": "npm run sync-docs && node scripts/build-updates-index.mjs",
-    "index-regulations": "node scripts/index-regulations.mjs"
+    "index-regulations": "node scripts/index-regulations.mjs",
+    "check-rag-env": "node scripts/check-rag-env.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",

@@ -1,5 +1,7 @@
 # 서비스 통합 가이드라인 — Agent 참조 섹션 추가 구현 계획
 
+**상태:** ✅ 완료
+
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
 **Goal:** `rf-2026-03-03-service-integration-guidelines.md`에 §7~§10 (API 공통 규약, BFF 판단 기준, 로컬 인증 처리, 마이그레이션 체크리스트)을 추가하여 AI 코딩 에이전트가 서비스 개발 시 즉시 참조할 수 있도록 한다.

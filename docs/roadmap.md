@@ -5,21 +5,22 @@
 
 ---
 
-## 현황 요약 (2026-03-03 기준)
+## 현황 요약 (2026-03-08 기준)
 
 | Phase | 상태 | 비고 |
 |-------|------|------|
 | Phase 1 — 인프라 기반 구축 | **~85% 완료** | OTel SDK 연동·CI/CD 미완 |
 | Phase 2 — 프론트엔드 셸 전환 | **완료** | Next.js 15 통합 UI 전환 완료 |
 | Phase 3-1 — policy/updates 통합 | **완료** | Next.js MDX 렌더링으로 전환 완료 |
-| Phase 3-2 — 감사보고일 대시보드 | ⏸ **향후 고려** | 백로그로 이동 |
-| Phase 3-3 — LLM 감사보고서 분석 | ⏸ **향후 고려** | 백로그로 이동 |
+| Phase 3-2 — 규제 업데이트 서비스 고도화 | **완료** | P1(검색·UX), P2(MCP), P3(RAG 채팅) 구현 완료 |
+| Phase 3-3 — 감사보고일 대시보드 | ⏸ **향후 고려** | 백로그로 이동 |
+| Phase 3-4 — LLM 감사보고서 분석 | ⏸ **향후 고려** | 백로그로 이동 |
 
 ---
 
 ## 목차
 
-- [현황 요약](#현황-요약-2026-03-03-기준)
+- [현황 요약](#현황-요약-2026-03-08-기준)
 - [문서 정비](#문서-정비)
 - [Phase 1 — 인프라 기반 구축](#phase-1--인프라-기반-구축)
   - [1-1. Docker Compose 전체 서비스 통합](#1-1-docker-compose-전체-서비스-통합)
@@ -38,8 +39,9 @@
   - [2-8. 배치 파이프라인 자동화](#2-8-배치-파이프라인-자동화)
 - [Phase 3 — 고도화](#phase-3--고도화)
   - [3-1. policy / quality-updates → Next.js 내 통합](#3-1-policy--quality-updates--nextjs-내-통합)
-  - [3-2. 감사보고일 대시보드](#3-2-감사보고일-대시보드)
-  - [3-3. LLM 감사보고서 분석 (탐색)](#3-3-llm-감사보고서-분석-탐색)
+  - [3-2. 규제 업데이트 서비스 고도화](#3-2-규제-업데이트-서비스-고도화)
+  - [3-3. 감사보고일 대시보드](#3-3-감사보고일-대시보드)
+  - [3-4. LLM 감사보고서 분석 (탐색)](#3-4-llm-감사보고서-분석-탐색)
 - [참고](#참고)
 
 ---
@@ -47,8 +49,8 @@
 ## 문서 정비
 
 - [x] 루트 `README.md` 생성 (실존 모듈 목록 + 한 줄 설명)
-- [x] `docs/PROJECT_SUMMARY.md` — 존재하지 않는 모듈 제거 (`dissertation`, `disclosureSimilarity`, `analytics`, `audit_activity_classification`, `dev`, `scheduleCollector`, `scheduleParser`)
-- [x] `docs/기획서_감사품질통합지원서비스.md` — 섹션 10·11의 구버전 기술 스택 수정 (Nginx → Traefik, Passport JWT/Redis → Keycloak OIDC)
+- [x] `docs/project-summary.md` — 존재하지 않는 모듈 제거 (`dissertation`, `disclosureSimilarity`, `analytics`, `audit_activity_classification`, `dev`, `scheduleCollector`, `scheduleParser`)
+- [x] `docs/project-planning.md` — 섹션 10·11의 구버전 기술 스택 수정 (Nginx → Traefik, Passport JWT/Redis → Keycloak OIDC)
 - [x] `docs/setup.md` — `.env.example` 없는 서비스 (`qualityPortal`, `qualityEval`, `timesheet`) `cp` 명령어 수정
 - [x] `docs/requirements.md`, `docs/workflow.md`, `docs/deploy.md`, `docs/adr/*` 점검 — 이상 없음
 
@@ -230,12 +232,22 @@
 
 ---
 
+### 3-2. 규제 업데이트 서비스 고도화
+
+- [x] **P1 — 검색·UX**: 카드 인덱스 (`/updates` 루트), fuse.js 클라이언트 퍼지 검색, 기관 필터 탭, 모바일 드로어 사이드바, 헤딩 인용/퍼머링크 복사
+- [x] **P2 — MCP 서버** (`apps/mcp-updates`): `@modelcontextprotocol/sdk` stdio transport, `search_regulations`·`get_regulation_doc`·`list_recent_regulations` 3개 툴, `updates-index.json` 공유
+- [x] **P3 — RAG 채팅 UI**: VoyageAI voyage-3 임베딩, pgvector 유사도 검색, Claude 스트리밍 SSE, 플로팅 채팅 버튼·패널
+
+**완료 기준:** ✅ 완료 (2026-03-08) — P1/P2/P3 모두 구현 완료. `apps/mcp-updates/` 신규 모듈, pgvector 스키마, Claude API 스트리밍 채팅.
+
+---
+
 ## 향후 고려 (Backlog)
 
 > 아래 항목들은 현재 프로젝트 범위에서 제외되어 백로그로 이동합니다.
 > 향후 필요에 따라 별도 계획을 수립하여 진행합니다.
 
-### 3-2. 감사보고일 대시보드 ⏸
+### 3-3. 감사보고일 대시보드 ⏸
 
 **배경:** `disclosureAnalysis` 배치로 추출한 감사보고일 데이터를 대시보드로 시각화하는 기능.
 
@@ -245,7 +257,7 @@
 
 > **선행 조건:** disclosureAnalysis 배치 결과물의 정기적 생성 및 API 연계 설계
 
-### 3-3. LLM 감사보고서 분석 (탐색) ⏸
+### 3-4. LLM 감사보고서 분석 (탐색) ⏸
 
 **배경:** 외부 LLM API를 활용하여 감사보고서 자동 요약·이상 탐지 PoC를 수행하는 기능.
 

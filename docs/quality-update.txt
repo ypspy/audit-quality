@@ -1,0 +1,23 @@
+규제 업데이트 작성 파이프라인을 다음과 같이 정하겠어. 따로, HITL(Human-in-the-loop)이라고 표시되지 않은 경우는 주기적으로 자동
+
+[Daily]
+
+1) 금융감독원, 금융위원회, 한국공인회계사회, 한국회계기준원에서 해당 일자 업데이트를 입수 (quality-update-crawler)
+1-1) 입수 시 직전일 자료가 완전하게 입수되었는 지 검증
+2) 입수된 자료는 Daily Retrieved Data(DRD)로 묶어서 추가 가공 대기 상태로 분류. 
+3) 추가 가공은 전문가와 Agent가 함께 수행.
+3-1) 입수 데이터 중 회계·감사 목적에서 업데이트가 필요한 자료를 전문가가 선별 [HITL]
+3-2) 전체 데이터는 Complete List of Retrieved Items로 제공
+3-3) 선별된 항목은 Agent가 정해진 인스트럭션에 따라 요약 정보를 작성함
+3-4) Agent가 요약하기 위해 필요한 PDF 또는 Txt 입력값은 전문가가 입수 후 제공 [HITL] (PDF 다운로드, HWP 포멧, 웹페이지 페치 등에 대해 기술적 안정성 확보 실패)
+4) 추가 가공 후 Deploy 처리한 DRD는 카드로 제공되며, 가공 대기 상태에서 제거됨
+
+[Quarterly]
+
+1) 매분기 기간 중 업데이트 내용을 취합해서 Quarterly Update를 제공
+2) Quarterly Update에서는 Executive Summary, 기관별 요약, 시사점이 추가되며, Daily update 를 종합하여 Agent가 작성
+
+[리펙터링 제안]
+
+1) 기존 입수 Data는 Entry 삭제, 추가, 변경 등이 불가능한 구조임. 기능 추가 필요
+2) 현재 Card 자료는 내부 요약, 공유, 참조 등의 기능이 충실하게 구현되지 않음. 수정 필요

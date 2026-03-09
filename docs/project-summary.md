@@ -33,7 +33,7 @@
 | 모듈 | 역할 |
 |------|------|
 | **dart-for-auditor** | DART 감사보고서 **메타데이터 인덱서** (API 전용). URL/메타만 인덱싱, 원문은 DART에서 조회. Next.js `/dart`에서 UI 제공. |
-| **quality-updates** | 회계기준·감사기준 개정 동향 수집·정리. MkDocs 소스 → Next.js `/updates`에서 MDX 렌더링 제공. |
+| **quality-updates** | 회계기준·감사기준 개정 동향 수집·정리. MkDocs 소스 → Next.js `/updates`에서 MDX 렌더링 제공. 카드 인덱스·퍼지 검색·RAG 채팅 UI 포함. |
 | **quality-updates-crawler** | 감사·품질 관련 기관 사이트 크롤러. `quality-updates/docs`에 Markdown 자동 생성. |
 | **contractParsing** | 감사보고서·감사계약체결보고 HTML에서 외부감사 실시내용·계약 정보 추출. |
 | **disclosureAnalysis** | 감사보고서 HTML에서 **감사보고일** 등 날짜 추출. 12월 결산 자료만 선별. |
@@ -64,6 +64,7 @@
 | 컴포넌트 | 역할 |
 |----------|------|
 | **apps/web** | Next.js 15 통합 UI 셸. App Router, Auth.js v5 + Keycloak OIDC. 모든 서비스 UI 통합 진입점. |
+| **apps/mcp-updates** | MCP 서버 (stdio transport). `search_regulations`·`get_regulation_doc`·`list_recent_regulations` 툴 제공. Claude Code 등 MCP 클라이언트에서 규제 문서 조회 가능. |
 | **forward-auth** | Traefik ForwardAuth 서비스. Keycloak JWKS로 JWT 검증, `X-Forwarded-User/Roles` 헤더 전달. |
 | **keycloak** | Keycloak 25.0.5 SSO. `yss` realm, next-app·express-services·flask-service 클라이언트. |
 | **traefik** | Traefik v3 리버스 프록시. 파일 프로바이더 기반 라우팅, RateLimit·IPAllowlist 미들웨어. |
@@ -75,9 +76,11 @@
 
 | 레이어 | 기술 |
 |--------|------|
-| **통합 UI** | Next.js 15 (App Router), TypeScript, Auth.js v5 |
+| **통합 UI** | Next.js 15 (App Router), TypeScript, Auth.js v5, Tailwind CSS v4 |
+| **검색·AI** | fuse.js (클라이언트 퍼지 검색), VoyageAI voyage-3 (임베딩), pgvector (유사도 검색), Claude API (스트리밍 채팅) |
+| **MCP** | `@modelcontextprotocol/sdk` stdio transport (`apps/mcp-updates`) |
 | **백엔드 API** | Node.js (Express), Python (Flask) |
-| **데이터베이스** | MongoDB (Mongoose), PostgreSQL (local-inquiry-site) |
+| **데이터베이스** | MongoDB (Mongoose), PostgreSQL (local-inquiry-site, pgvector RAG) |
 | **데이터 수집** | DART API·크롤링, BeautifulSoup/Cheerio, Pandas |
 | **인증** | Keycloak 25 OIDC/SSO, JWT (JWKS), ForwardAuth |
 | **인프라** | Docker Compose, Traefik v3, GitHub Actions CI/CD |
@@ -92,4 +95,4 @@
 
 ---
 
-*최초 작성: 2026-02-27 / 최종 수정: 2026-03-03*
+*최초 작성: 2026-02-27 / 최종 수정: 2026-03-08*

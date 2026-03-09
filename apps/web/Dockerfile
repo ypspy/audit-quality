@@ -35,6 +35,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/src/content ./src/content
 # MkDocs nav YAML (사이드바 생성용)
 COPY --from=builder --chown=nextjs:nodejs /app/src/nav ./src/nav
+# index-regulations.mjs (RAG 임베딩 인덱싱용)
+COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./
 USER nextjs
 EXPOSE 3000
 ENV PORT=3000

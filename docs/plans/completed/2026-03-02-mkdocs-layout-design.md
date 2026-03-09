@@ -1,5 +1,6 @@
 # MkDocs Material Layout 재현 설계
 
+**상태:** ✅ 완료
 **날짜:** 2026-03-02
 **목표:** `/policy`, `/updates` 문서 섹션에 MkDocs Material 스타일 레이아웃 적용
 **범위:** 3-panel 레이아웃, 사이드바 nav, 오른쪽 TOC, footer 이전/다음, Noto Sans KR, 코드 복사, 맨 위로 버튼 (검색 제외)

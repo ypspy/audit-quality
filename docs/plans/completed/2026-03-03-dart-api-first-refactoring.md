@@ -1,5 +1,7 @@
 # dart-for-auditor API-first 리팩토링 계획
 
+**상태:** ✅ 완료 (2026-03-04)
+
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
 **Goal:** `rf-2026-03-03-service-integration-guidelines.md` §7~§10 체크리스트를 기준으로 `dart-for-auditor`를 API-first 규약에 맞게 정렬한다.

@@ -63,34 +63,71 @@ export function UpdatesChat() {
       body: JSON.stringify({ message: userMsg, history }),
     });
 
-    if (!res.body) { setLoading(false); return; }
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => null);
+      const errObj = errBody as { error?: string; detail?: string } | null;
+      const msg = errObj?.error || res.statusText || `오류 (${res.status})`;
+      setMessages((prev) => [...prev, { role: "assistant", content: `⚠️ ${msg}` }]);
+      setLoading(false);
+      return;
+    }
+
+    if (!res.body) {
+      setMessages((prev) => [...prev, { role: "assistant", content: "⚠️ 응답을 받지 못했습니다." }]);
+      setLoading(false);
+      return;
+    }
 
     let assistantContent = "";
     setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
+    let buffer = "";
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      const text = decoder.decode(value);
-      for (const line of text.split("\n")) {
-        if (!line.startsWith("data: ")) continue;
-        try {
-          const evt = JSON.parse(line.slice(6)) as { type: string; content?: string; items?: Source[] };
-          if (evt.type === "delta" && evt.content) {
-            assistantContent += evt.content;
-            setMessages((prev) => {
-              const next = [...prev];
-              next[next.length - 1] = { role: "assistant", content: assistantContent };
-              return next;
-            });
-          } else if (evt.type === "sources" && evt.items) {
-            setSources(evt.items);
-          }
-        } catch { /* skip malformed */ }
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          try {
+            const evt = JSON.parse(line.slice(6)) as {
+              type: string;
+              content?: string;
+              items?: Source[];
+              message?: string;
+              detail?: string;
+            };
+            if (evt.type === "delta" && evt.content) {
+              assistantContent += evt.content;
+              setMessages((prev) => {
+                const next = [...prev];
+                next[next.length - 1] = { role: "assistant", content: assistantContent };
+                return next;
+              });
+            } else if (evt.type === "sources" && evt.items) {
+              setSources(evt.items);
+            } else if (evt.type === "error") {
+              const errMsg = evt.message || evt.detail || "응답 생성 중 오류가 발생했습니다.";
+              setMessages((prev) => {
+                const next = [...prev];
+                next[next.length - 1] = { role: "assistant", content: `⚠️ ${errMsg}` };
+                return next;
+              });
+            }
+          } catch { /* skip malformed */ }
+        }
       }
+    } catch (e) {
+      setMessages((prev) => {
+        const next = [...prev];
+        next[next.length - 1] = { role: "assistant", content: `⚠️ 연결 오류: ${String(e)}` };
+        return next;
+      });
     }
     setLoading(false);
   }

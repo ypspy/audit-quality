@@ -1,5 +1,7 @@
 # 규제 업데이트 서비스 프론트엔드 개선 구현 계획
 
+**상태:** ✅ 완료
+
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
 **Goal:** `/updates` 규제 업데이트 서비스에 카드 인덱스·검색·필터·모바일 드로어·인용 복사(P1), MCP 서버(P2), RAG 채팅 UI(P3)를 추가한다.
@@ -1861,20 +1863,20 @@ git commit -m "feat(web): add RAG chat widget to /updates page"
 ## 완료 기준 체크리스트
 
 ### P1
-- [ ] `/updates` 진입 시 카드 목록 렌더링
-- [ ] 검색창에서 퍼지 검색 동작
-- [ ] 기관 필터 탭 동작
-- [ ] 모바일(375px)에서 햄버거 → 드로어 동작
-- [ ] 문서 페이지 헤딩 hover 시 `#` `"` 버튼 표시
-- [ ] `#` 클릭 → 앵커 URL 클립보드 복사
-- [ ] `"` 클릭 → 인용 스니펫 클립보드 복사
-- [ ] 페이지 상단 "링크 복사" 버튼 동작
+- [x] `/updates` 진입 시 카드 목록 렌더링
+- [x] 검색창에서 퍼지 검색 동작
+- [x] 기관 필터 탭 동작
+- [x] 모바일(375px)에서 햄버거 → 드로어 동작
+- [x] 문서 페이지 헤딩 hover 시 `#` `"` 버튼 표시
+- [x] `#` 클릭 → 앵커 URL 클립보드 복사
+- [x] `"` 클릭 → 인용 스니펫 클립보드 복사
+- [x] 페이지 상단 "링크 복사" 버튼 동작
 
 ### P2
-- [ ] `npm run build` in `apps/mcp-updates` 성공
-- [ ] Claude Code에서 `search_regulations`, `get_regulation`, `list_regulations` tool 사용 가능
+- [x] `npm run build` in `apps/mcp-updates` 성공
+- [x] Claude Code에서 `search_regulations`, `get_regulation`, `list_regulations` tool 사용 가능
 
 ### P3
-- [ ] `index-regulations.mjs` 실행 후 pgvector에 청크 삽입 확인
-- [ ] `/api/web/updates/chat` SSE 스트리밍 응답 확인
-- [ ] 채팅 위젯 UI 동작, 출처 카드 인용 복사 동작
+- [x] `index-regulations.mjs` 실행 후 pgvector에 청크 삽입 확인
+- [x] `/api/web/updates/chat` SSE 스트리밍 응답 확인
+- [x] 채팅 위젯 UI 동작, 출처 카드 인용 복사 동작

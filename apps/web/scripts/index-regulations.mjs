@@ -3,21 +3,19 @@
  * Chunks all updates markdown files and upserts embeddings into pgvector.
  * Requires:
  *   DATABASE_URL=postgres://...
- *   ANTHROPIC_API_KEY=...  (for voyage-3 embeddings via Anthropic)
+ *   VOYAGE_API_KEY=...  (https://dash.voyageai.com/)
  * Usage: node scripts/index-regulations.mjs
  */
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import pg from "pg";
-import { VoyageAIClient } from "voyageai";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const contentDir = path.resolve(__dirname, "../src/content/updates");
 const indexFile = path.resolve(__dirname, "../src/content/updates-index.json");
 
 const client = new pg.Client({ connectionString: process.env.DATABASE_URL });
-const voyage = new VoyageAIClient({ apiKey: process.env.VOYAGE_API_KEY });
 
 function chunkByHeadings(content, maxTokens = 500) {
   const lines = content.split("\n");
@@ -51,11 +49,19 @@ function chunkByHeadings(content, maxTokens = 500) {
 }
 
 async function embedTexts(texts) {
-  const response = await voyage.embed({
-    input: texts,
-    model: "voyage-3",
+  const apiKey = process.env.VOYAGE_API_KEY;
+  if (!apiKey) throw new Error("VOYAGE_API_KEY required");
+  const res = await fetch("https://api.voyageai.com/v1/embeddings", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({ input: texts, model: "voyage-3" }),
   });
-  return (response.data ?? []).map((d) => d.embedding ?? []);
+  if (!res.ok) throw new Error(`Voyage API ${res.status}: ${await res.text()}`);
+  const json = await res.json();
+  return (json.data ?? []).map((d) => d.embedding ?? []);
 }
 
 async function main() {
@@ -63,8 +69,15 @@ async function main() {
 
   const index = JSON.parse(fs.readFileSync(indexFile, "utf-8"));
 
+  // Per-item index: group by quarterlySlug to process each file once
+  const slug = (e) => e.quarterlySlug ?? e.slug;
+  const seen = new Set();
   for (const entry of index) {
-    const filePath = path.join(contentDir, `${entry.slug}.md`);
+    const quarterlySlug = slug(entry);
+    if (seen.has(quarterlySlug)) continue;
+    seen.add(quarterlySlug);
+
+    const filePath = path.join(contentDir, `${quarterlySlug}.md`);
     if (!fs.existsSync(filePath)) continue;
 
     const raw = fs.readFileSync(filePath, "utf-8");
@@ -73,31 +86,33 @@ async function main() {
 
     if (chunks.length === 0) continue;
 
-    // Delete existing chunks for this slug
-    await client.query("DELETE FROM regulations.chunks WHERE slug = $1", [entry.slug]);
+    const title = entry.title ?? quarterlySlug;
+    const entryPath = entry.path ?? `/updates/${quarterlySlug}`;
+    const entryDate = entry.date ?? "";
+    const entrySource = entry.source ?? (entry.sources?.[0] ?? "");
 
-    // Embed in batches of 10
+    await client.query("DELETE FROM regulations.chunks WHERE slug = $1", [quarterlySlug]);
+
     for (let i = 0; i < chunks.length; i += 10) {
       const batch = chunks.slice(i, i + 10);
-      const texts = batch.map((c) => `${entry.title}\n${c.heading}\n${c.content}`);
+      const texts = batch.map((c) => `${title}\n${c.heading}\n${c.content}`);
       const embeddings = await embedTexts(texts);
 
       for (let j = 0; j < batch.length; j++) {
         const metadata = {
-          title: entry.title,
-          date: entry.date,
-          sources: entry.sources,
-          category: entry.category,
-          path: entry.path,
-          url: `https://your-domain.com${entry.path}#${entry.slug}`,
+          title,
+          date: entryDate,
+          source: entrySource,
+          path: entryPath,
+          url: entry.url ?? `https://your-domain.com${entryPath}`,
         };
         await client.query(
           `INSERT INTO regulations.chunks (slug, heading, content, metadata, embedding)
            VALUES ($1, $2, $3, $4, $5)`,
-          [entry.slug, batch[j].heading, batch[j].content, JSON.stringify(metadata), JSON.stringify(embeddings[j])]
+          [quarterlySlug, batch[j].heading, batch[j].content, JSON.stringify(metadata), JSON.stringify(embeddings[j])]
         );
       }
-      console.log(`indexed ${entry.slug}: chunks ${i}–${i + batch.length - 1}`);
+      console.log(`indexed ${quarterlySlug}: chunks ${i}–${i + batch.length - 1}`);
     }
   }
 

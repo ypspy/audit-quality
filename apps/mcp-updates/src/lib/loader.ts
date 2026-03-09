@@ -5,14 +5,13 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export type IndexEntry = {
-  slug: string;
+  quarterlySlug: string;
   path: string;
+  url: string;
   title: string;
   date: string;
+  source: string;
   periodLabel: string;
-  sources: string[];
-  category: string;
-  tags: string[];
   summary: string;
 };
 

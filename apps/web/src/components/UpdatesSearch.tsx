@@ -34,7 +34,7 @@ export function UpdatesSearch({
   const fuse = useMemo(
     () =>
       new Fuse(entries, {
-        keys: ["title", "summary", "tags", "periodLabel"],
+        keys: ["title", "summary", "source", "periodLabel"],
         threshold: 0.35,
       }),
     [entries]
@@ -46,7 +46,7 @@ export function UpdatesSearch({
       : entries;
 
     if (activeSource) {
-      result = result.filter((e) => e.sources.includes(activeSource));
+      result = result.filter((e) => e.source === activeSource);
     }
     return result;
   }, [query, activeSource, entries, fuse]);
@@ -63,7 +63,7 @@ export function UpdatesSearch({
         </svg>
         <input
           type="text"
-          placeholder="규제 제목, 기간, 키워드 검색..."
+          placeholder="규제 제목, 기관, 키워드 검색..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 pl-10 pr-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -109,36 +109,52 @@ export function UpdatesSearch({
       {/* Card list */}
       <ul className="space-y-3">
         {filtered.map((entry) => (
-          <li key={entry.slug}>
-            <Link
-              href={entry.path}
-              className="block rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-sm transition-all"
-            >
+          <li key={entry.url}>
+            <div className="block rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-sm transition-all">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap gap-1.5 mb-2">
+                  <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                    <Badge label={entry.source} />
                     {entry.periodLabel && (
-                      <span className="inline-block rounded px-1.5 py-0.5 text-xs font-mono bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+                      <Link
+                        href={entry.path}
+                        className="inline-block rounded px-1.5 py-0.5 text-xs font-mono bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         {entry.periodLabel}
-                      </span>
+                      </Link>
                     )}
-                    {entry.sources.map((src) => (
-                      <Badge key={src} label={src} />
-                    ))}
                   </div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                  <a
+                    href={entry.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-medium text-gray-900 dark:text-gray-100 hover:text-indigo-600 dark:hover:text-indigo-400 line-clamp-2"
+                  >
                     {entry.title}
-                  </p>
-                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 line-clamp-2">
-                    {entry.summary}
-                  </p>
+                  </a>
+                  {entry.summary && (
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 line-clamp-2">
+                      {entry.summary}
+                    </p>
+                  )}
                 </div>
                 <div className="shrink-0 text-right">
                   <span className="text-xs text-gray-400">{entry.date}</span>
-                  <div className="mt-2 text-indigo-600 dark:text-indigo-400 text-xs">→</div>
+                  <div className="mt-2">
+                    <a
+                      href={entry.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-indigo-600 dark:text-indigo-400 text-xs hover:underline"
+                      aria-label="원문 보기"
+                    >
+                      →
+                    </a>
+                  </div>
                 </div>
               </div>
-            </Link>
+            </div>
           </li>
         ))}
         {filtered.length === 0 && (
