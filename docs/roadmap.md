@@ -5,7 +5,7 @@
 
 ---
 
-## 현황 요약 (2026-03-08 기준)
+## 현황 요약 (2026-03-09 기준)
 
 | Phase | 상태 | 비고 |
 |-------|------|------|
@@ -116,7 +116,7 @@
 - [x] `.github/workflows/ci.yml` 작성 — PR 시 Node lint/test, Python unittest, Docker 스모크 빌드
 - [x] `.github/workflows/deploy.yml` 작성 — main push 시 GHCR 이미지 빌드·푸시, SSH 배포 (DEPLOY_ENABLED=true 시 활성화)
 - [x] 루트 디렉토리 `git init` + 루트 `.gitignore` 작성 (2026-03-03)
-- [ ] GitHub 원격 저장소 연결 (`git remote add origin <url>` 후 `git push -u origin main`)
+- [x] GitHub 원격 저장소 연결 (`git remote add origin <url>` 후 `git push -u origin main`)
 - [ ] GitHub Secrets 설정 (`SSH_HOST`, `SSH_USER`, `SSH_PRIVATE_KEY`, `REGISTRY_TOKEN`)
 - [ ] CI/CD 실제 실행 확인
 

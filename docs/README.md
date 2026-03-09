@@ -39,8 +39,7 @@
 
 ### 설계·실험 계획 (기록)
 - **[plans/README.md](./plans/README.md)** — 일회성 설계·실험 계획 문서 안내
-- **[plans/2026-03-02-mkdocs-layout-design.md](./plans/2026-03-02-mkdocs-layout-design.md)** — /policy, /updates 3-panel 레이아웃 설계 기록
-- **[plans/2026-03-03-service-integration-agent-guide-design.md](./plans/2026-03-03-service-integration-agent-guide-design.md)** — 서비스 통합 가이드라인 §7~§10 Agent 참조 섹션 설계 기록
+- **plans/completed/** — 완료된 설계·실험 계획 모음 (MkDocs 레이아웃, 서비스 통합 에이전트 가이드, quality-updates 파이프라인 등)
 
 ---
 
@@ -52,4 +51,4 @@
 
 ---
 
-*최초 작성: 2026-02-27 / 최종 수정: 2026-03-03 (서비스 통합 가이드라인 §7~§10 Agent 참조 섹션 추가)*
+*최초 작성: 2026-02-27 / 최종 수정: 2026-03-09 (plans/completed/ 구조 및 quality-updates 파이프라인 문서 정리 반영)*
