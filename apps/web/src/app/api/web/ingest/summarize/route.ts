@@ -9,6 +9,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
   const body = await req.json();
-  const result = await summarize(body);
-  return NextResponse.json(result);
+  try {
+    const result = await summarize(body);
+    return NextResponse.json(result);
+  } catch (e) {
+    return NextResponse.json({ error: (e as Error).message }, { status: 502 });
+  }
 }

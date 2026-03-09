@@ -1,25 +1,28 @@
 const BASE = process.env.DOCUMENT_INGESTOR_URL ?? "http://document-ingestor:8010";
 
+async function fetchJson<T>(url: string, init: RequestInit): Promise<T> {
+  const res = await fetch(url, init);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { detail?: string }).detail ?? `upstream error ${res.status}`);
+  }
+  return res.json() as Promise<T>;
+}
+
 export async function ingestUrl(url: string): Promise<{ text: string; error?: string }> {
-  const res = await fetch(`${BASE}/ingest/url`, {
+  return fetchJson(`${BASE}/ingest/url`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ url }),
   });
-  return res.json();
 }
 
 export async function ingestFile(
   file: File
-): Promise<{ file_id: string; type: string } | { error: string }> {
+): Promise<{ file_id: string; type: string }> {
   const form = new FormData();
   form.append("file", file);
-  const res = await fetch(`${BASE}/ingest/file`, { method: "POST", body: form });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    return { error: (err as { detail?: string }).detail ?? "파일 처리 실패" };
-  }
-  return res.json();
+  return fetchJson(`${BASE}/ingest/file`, { method: "POST", body: form });
 }
 
 export async function summarize(payload: {
@@ -28,12 +31,11 @@ export async function summarize(payload: {
   source: string;
   category: string;
 }): Promise<{ title: string; summary: string }> {
-  const res = await fetch(`${BASE}/summarize`, {
+  return fetchJson(`${BASE}/summarize`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  return res.json();
 }
 
 export async function drdSave(payload: {
@@ -45,10 +47,9 @@ export async function drdSave(payload: {
   quarter_filename: string;
   summary: string;
 }): Promise<{ ok: boolean }> {
-  const res = await fetch(`${BASE}/drd/save`, {
+  return fetchJson(`${BASE}/drd/save`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  return res.json();
 }

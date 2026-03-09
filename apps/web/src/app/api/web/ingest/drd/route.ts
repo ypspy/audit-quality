@@ -10,9 +10,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
   const body = await req.json();
-  const result = await drdSave(body);
-  if (result.ok) {
-    revalidatePath("/updates");
+  try {
+    const result = await drdSave(body);
+    if (result.ok) {
+      revalidatePath("/updates");
+    }
+    return NextResponse.json(result);
+  } catch (e) {
+    return NextResponse.json({ error: (e as Error).message }, { status: 502 });
   }
-  return NextResponse.json(result);
 }
