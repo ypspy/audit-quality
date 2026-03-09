@@ -374,6 +374,25 @@ services:
     networks:
       - app
 
+  # ---------- document-ingestor + gotenberg ----------
+  document-ingestor:
+    build: ./apps/document-ingestor
+    restart: unless-stopped
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GOTENBERG_URL=http://gotenberg:3000
+      - QUALITY_UPDATES_PATH=/workspace/quality-updates
+    volumes:
+      - ${QUALITY_UPDATES_HOST_PATH:-../quality-updates}:/workspace/quality-updates
+    networks:
+      - internal
+
+  gotenberg:
+    image: gotenberg/gotenberg:8
+    restart: unless-stopped
+    networks:
+      - internal
+
   # Phase 3-1: /policy, /updates는 Next.js MDX로 서빙 (policy-docs/updates-docs 컨테이너 미사용)
 
   # 금융·회계 규제 업데이트 크롤러 (quality-updates-crawler)
@@ -518,4 +537,6 @@ volumes:
 
 networks:
   app:
+    driver: bridge
+  internal:
     driver: bridge

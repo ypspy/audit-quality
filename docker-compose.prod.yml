@@ -27,3 +27,7 @@ services:
   local-inquiry-site:
     image: ${GHCR_IMAGE_PREFIX}/audit-quality-inquiry:${IMAGE_TAG:-latest}
     build: ~
+
+  document-ingestor:
+    image: ${GHCR_IMAGE_PREFIX}/audit-quality-document-ingestor:${IMAGE_TAG:-latest}
+    build: ~
